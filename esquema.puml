@@ -1,0 +1,97 @@
+@startuml ay-emulator
+
+skinparam BackgroundColor #FFFFFF
+skinparam BoxPadding 10
+skinparam ParticipantPadding 10
+
+box "Hilo Principal (Página Web / UI Thread)" #LightCyan
+    participant "Vista (DOM)\nindex.html" as HTML
+    participant "AYM_PlayerView\naym-player-view.js" as View << (V, #FF7700) Vista >>
+    participant "AYM_Player\naym-player.js" as Controller << (C, #00AA00) Controlador >>
+    participant "AYM_PlayerModel\naym-player-model.js" as Model << (M, #b4b4f6) Modelo >>
+end box
+
+box "Hilo de Audio (AudioWorklet Thread)" #LightGray
+    participant "AYM_PlayerProcessor\naym-player-processor.js" as Processor << (C, #00AA00) Motor de Audio >>
+    participant "AYM_Playlist\naym-playlist.js" as Playlist << (M, #b4b4f6) Datos >>
+    participant "AYM_Emulator\naym-emulator.js" as Emulator << (M, #b4b4f6) Emulación Hardware >>
+end box
+
+== Inicialización y Carga Dinámica ==
+HTML -> View : window.onload
+activate View
+View -> Controller : onLoadWindow()
+Controller -> View : bind() (enlaza botones, canvas y select)
+deactivate View
+
+HTML -> View : Clic en Botón Power
+activate View
+View -> Controller : onClickPower()
+activate Controller
+Controller -> Model : powerOn()
+activate Model
+Model -> Model : Inicializa AudioContext\ny carga AudioWorklet
+Model -> Processor : [postMessage] 'RequestTrackList'
+deactivate Model
+
+activate Processor
+Processor -> Playlist : getTrackNames()
+activate Playlist
+Playlist --> Processor : Arreglo de nombres de canciones
+deactivate Playlist
+Processor -> Model : [postMessage] 'TrackList'
+deactivate Processor
+
+activate Model
+Model -> Controller : recvTrackList(trackList)
+activate Controller
+Controller -> View : populateSelector(trackList)
+View -> HTML : Agrega <option> dinámicamente al <select>
+deactivate Controller
+deactivate Controller
+deactivate View
+
+== Flujo de Reproducción (Play / Selector) ==
+HTML -> View : Evento 'change' en <select> o clic en Play
+activate View
+View -> Controller : onClickPlay() o onSelectTrack()
+activate Controller
+Controller -> View : getSelectedTrackIndex()
+View --> Controller : trackIndex
+Controller -> Model : sendPlay(trackIndex)
+activate Model
+Model -> Processor : [postMessage] 'Play' (con trackIndex)
+deactivate Model
+deactivate Controller
+deactivate View
+
+activate Processor
+Processor -> Playlist : setTrack(trackIndex)
+activate Playlist
+Playlist --> Processor : Objeto de la canción (music)
+deactivate Playlist
+Processor -> Processor : Reinicia indices\n(music_index = 0)
+
+== Ciclo de Audio en Tiempo Real (Método process() a 44.1kHz) ==
+loop Cada bloque de muestras (AudioWorklet loop)
+    Processor -> Processor : clockMusic() (Temporizador ~50Hz)
+    alt Es momento de un nuevo Frame de música
+        Processor -> Processor : Lee frame de 14 bytes
+        loop Registro 0 al 13
+            Processor -> Emulator : set_register_index(reg)
+            Processor -> Emulator : set_register_value(val)
+        end
+    end
+    
+    Processor -> Emulator : clock() (Generación de onda analógica)
+    activate Emulator
+    Emulator -> Emulator : Modula Tonos A, B, C y Ruido (LFSR)
+    Emulator -> Emulator : Aplica curvas DAC (AY_DAC / YM_DAC)
+    Emulator --> Processor : Muestras de audio (Float32)
+    deactivate Emulator
+    
+    Processor -> HTML : Envía buffer a los altavoces (Web Audio API)
+end
+deactivate Processor
+
+@endum

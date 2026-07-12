@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Decoder de Chiptunes YM</title>
+    <style>
+        body { font-family: sans-serif; background-color: #1e1e24; color: #f5f5f5; max-width: 800px; margin: 40px auto; padding: 20px; }
+        h1 { color: #00adb5; }
+        .card { background-color: #2a2a35; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        pre { background-color: #111116; padding: 15px; border-radius: 6px; overflow-x: auto; color: #a9ffb2; font-family: 'Courier New', Courier, monospace; font-size: 13px; }
+        .error { color: #ff6b6b; }
+        .song-data-header { color: #00adb5; margin-top: 20px; border-bottom: 1px dashed #393e46; padding-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <h1>Decodificador de Chiptunes YM</h1>
+    
+    <div class="card">
+        <label style="display:block; margin-bottom:10px;">Selecciona un archivo (.ym):</label>
+        <input type="file" id="file-picker" accept=".ym,.ym5,.ym6" />
+    </div>
+
+    <div class="card" id="result-card" style="display: none;">
+        <h2>Datos de la Canción</h2>
+        <p><strong>Tipo de Formato:</strong> <span id="info-format"></span></p>
+        <p><strong>Número de Frames:</strong> <span id="info-frames"></span></p>
+        <p><strong>Tamaño de Datos:</strong> <span id="info-size"></span></p>
+        
+        <h3>Metadatos</h3>
+        <pre id="info-metadata"></pre>
+
+        <h3 class="song-data-header">Registros de Sonido (14 columnas por línea)</h3>
+        <pre id="info-song-data"></pre>
+    </div>
+
+    <div class="card" id="log-card" style="display: none;">
+        <h3>Log del Proceso</h3>
+        <pre id="info-log"></pre>
+    </div>
+
+    <script>
+        const localModules = {};
+        window.require = function(modulePath) {
+            if (modulePath.includes('bit-eater')) return localModules['bit-eater'];
+            if (modulePath.includes('tree')) return localModules['tree'];
+            if (modulePath.includes('new_decoder')) return localModules['new_decoder'];
+            if (modulePath.includes('null_decoder')) return localModules['null_decoder'];
+            if (modulePath.includes('decoder')) return localModules['decoder'];
+            if (modulePath.includes('archive')) return localModules['archive'];
+            return null;
+        };
+
+        // Función auxiliar para cargar los scripts simulando el aislamiento de Node.js
+        async function loadCommonJsModule(name, url) {
+            const response = await fetch(url);
+            const code = await response.text();
+            
+            // Evaluamos el código envolviéndolo en un contexto donde 'module' y 'exports' son locales
+            const module = { exports: {} };
+            const exports = module.exports;
+            
+            // Ejecución segura
+            const runModule = new Function('module', 'exports', 'require', code);
+            runModule(module, exports, window.require);
+            
+            localModules[name] = module.exports;
+        }
+
+        // Cargamos de forma asíncrona y secuencial respetando el orden estricto de Node
+        (async () => {
+            try {
+                await loadCommonJsModule('bit-eater', './lib/bit-eater.js');
+                await loadCommonJsModule('tree', './lib/tree.js');
+                await loadCommonJsModule('null_decoder', './lib/null_decoder.js');
+                await loadCommonJsModule('new_decoder', './lib/new_decoder.js');
+                await loadCommonJsModule('decoder', './lib/decoder.js');
+                await loadCommonJsModule('archive', './lib/archive.js');
+                await loadCommonJsModule('index', './lib/index.js');
+                
+                // Exportamos únicamente el punto de entrada limpio al entorno global
+                window.JSLha = localModules['index'];
+                console.log("Librería jslha acoplada con éxito y protegida contra colisiones.");
+            } catch (e) {
+                console.error("Error cargando componentes locales de jslha:", e);
+            }
+        })();
+    </script>
+
+    <script type="module">
+        import { ChiptuneFile } from './ChiptuneFile.js';
+
+        const filePicker = document.getElementById('file-picker');
+        const resultCard = document.getElementById('result-card');
+        const logCard = document.getElementById('log-card');
+
+        filePicker.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const chiptune = new ChiptuneFile();
+            
+            try {
+                await chiptune.loadFile(file);
+                
+                const [songData, nFrames] = chiptune.getData();
+
+                resultCard.style.display = 'block';
+                logCard.style.display = 'block';
+
+                document.getElementById('info-format').textContent = chiptune.getFormatType();
+                document.getElementById('info-frames').textContent = nFrames;
+                document.getElementById('info-size').textContent = `${songData.length} bytes`;
+                document.getElementById('info-metadata').textContent = chiptune.getAdditionalInfo() || 'Sin metadatos.';
+                document.getElementById('info-log').textContent = chiptune.getProcessLog();
+
+                // --- MOSTRADO ORDENADO MATRICIAL EN 14 COLUMNAS POR LÍNEA ---
+                const songDataContainer = document.getElementById('info-song-data');
+                const registersPerLine = 14; 
+                let lines = [];
+
+                for (let i = 0; i < songData.length; i += registersPerLine) {
+                    const chunk = songData.slice(i, i + registersPerLine);
+                    // Mapeo estilizado a bytes Hexadecimales clásicos de trackers retro (ej: 0x4E)
+                    const formattedLine = chunk.map(b => "0x" + b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
+                    lines.push(formattedLine);
+
+                    // Guard-rail de optimización para que la UI no sufra bloqueos por textos inmensos
+                    if (lines.length > 100) {
+                        lines.push(`... [Muestra limitada a los primeros 100 frames de un total de ${Math.ceil(songData.length / registersPerLine)} por rendimiento] ...`);
+                        break;
+                    }
+                }
+
+                songDataContainer.textContent = lines.join('\n');
+
+            } catch (err) {
+                logCard.style.display = 'block';
+                resultCard.style.display = 'none';
+                document.getElementById('info-log').textContent = `Error:\n${err.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

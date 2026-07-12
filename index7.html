@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title> AY/YM music player</title>
+        <meta charset="utf-8">
+        <link rel="preload" as="style" href="vendor/fontawesome/css/all.min.css">
+        <link rel="preload" as="style" href="vendor/picocss/css/pico.min.css">
+        <link rel="preload" as="style" href="assets/css/index.css">
+        <link rel="modulepreload" href="assets/js/index.js">
+        <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="vendor/picocss/css/pico.min.css">
+        <link rel="stylesheet" href="assets/css/index.css">
+    </head>
+    <body>
+        <main class="container">
+            
+                <h2 class="text-to-uppercase">AY/YM music player</h2>
+
+                <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 15px;">
+                        
+                        <!-- Columna Izquierda: Canvas General -->
+                        <div style="flex: 0 0 auto;">
+
+                            <fieldset id="aymEmulationControls" width="300px">
+                                <legend>Emulation</legend>
+                                <div class="grid">
+                                    <button id="aymPower"><i class="fa-solid fa-power-off"></i><br>Power</button>
+                                    <button id="aymReset"><i class="fa-solid fa-rotate"></i><br>Reset</button>
+                                    <button id="aymPause"><i class="fa-solid fa-pause"></i><br>Pause</button>
+                                </div>
+                                <div class="grid">
+                                    <button id="aymMuteA"><i class="fa-solid fa-volume-xmark"></i><br>Mute A</button>
+                                    <button id="aymMuteB"><i class="fa-solid fa-volume-xmark"></i><br>Mute B</button>
+                                    <button id="aymMuteC"><i class="fa-solid fa-volume-xmark"></i><br>Mute C</button>
+                                </div>
+                            </fieldset>
+
+                            
+
+                            <div class="grid">                  
+                                <fieldset id="aymStorageControls">
+                                    <legend>Load File</legend>                            
+                                    <div class="grid">
+                                        <div>
+                                            <!--<label for="file-picker">Choose a Chiptune Track</label>-->
+                                            <input type="file" id="file-picker" accept=".ym,.ym5,.ym6,.ay" />
+                                        </div>
+                                    </div>
+
+
+                                    <div class="grid">
+                                        <button id="aymFilePlay"><i class="fa-solid fa-play"></i><br>Play</button>
+                                        <button id="aymFileStop"><i class="fa-solid fa-stop"></i><br>Stop</button>                            
+                                    </div>
+
+                                </fieldset>
+
+                                <fieldset id="aymPlaybackControls">
+                                    <legend>Internal songs</legend>
+
+                                    <!-- NUEVO ELEMENTO: Selector de pistas integrado en la cuadrícula -->
+                                    <div class="grid">
+                                        <div>
+                                            <!--<label for="aymSelector">Select Track</label>-->
+                                            <select id="aymSelector">
+                                                <option value="">Encienda el reproductor...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid">
+                                        <button id="aymPlay"><i class="fa-solid fa-play"></i><br>Play</button>
+                                        <button id="aymStop"><i class="fa-solid fa-stop"></i><br>Stop</button>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <fieldset id="aymPlaybackEstatus">
+                                <legend>Playback status</legend>
+                                <div class="grid">
+                                        <p id="aymStatusDisplay">AYM Player is Off</p>
+                                    </div>
+                                <div class="grid">
+                                    <input id="aymSeek" type="range">
+                                </div>
+                            </fieldset>
+                    
+
+                            
+                        </div>
+
+                        <div style="flex: 0 0 auto;">
+                                <fieldset id="aymAnalyserControls">
+                                    <legend>Spectrum analysis</legend>
+                                    
+                                    <!-- Switch de activación -->
+                                    <div class="grid">
+                                        <div>
+                                            <label for="aymAnalyse">
+                                                <input id="aymAnalyse" type="checkbox" role="switch"> Enable
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Contenedor Principal de Dos Columnas -->
+                                    <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 15px;">
+                                        
+                                        <!-- Columna Izquierda: Canvas General -->
+                                        <div style="flex: 0 0 auto;">
+                                            <canvas id="aymCanvas" width="440" height="225" style="border: 1px solid #ccc; display: block;"></canvas>
+                                        </div>
+                                        
+
+                                        <!-- Columna Derecha: Canales con sus etiquetas agrupados verticalmente -->
+                                        <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 auto;">
+                                            
+                                            <!-- Bloque Canal 0 -->
+                                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel A</span>
+                                                <canvas id="aymCanvasCh0" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                                            </div>
+
+                                            <!-- Bloque Canal 1 -->
+                                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel B</span>
+                                                <canvas id="aymCanvasCh1" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                                            </div>
+
+                                            <!-- Bloque Canal 2 -->
+                                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel C</span>
+                                                <canvas id="aymCanvasCh2" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <!-- Contenedor Principal de Dos Columnas -->
+                                    <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 15px;">
+                                        
+                                        <!-- Columna Izquierda: Canvas General -->
+                                        <div style="flex: 0 0 auto;">
+                                            <canvas id="aymTimeCanvas" width="440" height="225" style="border: 1px solid #ccc; display: block;"></canvas>
+                                        </div>
+                                        
+
+                                        <!-- Columna Derecha: Canales con sus etiquetas agrupados verticalmente -->
+                                        <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 auto;">
+                                            
+                                            <!-- Bloque Canal 0 -->
+                                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel A</span>
+                                                <canvas id="aymTimeCanvasCh0" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                                            </div>
+
+                                            <!-- Bloque Canal 1 -->
+                                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel B</span>
+                                                <canvas id="aymTimeCanvasCh1" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                                            </div>
+
+                                            <!-- Bloque Canal 2 -->
+                                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel C</span>
+                                                <canvas id="aymTimeCanvasCh2" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+
+                                </fieldset>
+                        </div>
+                </div>
+
+
+              
+        
+        </main>
+
+        <!--<footer>
+            Proyecto orignal: https://github.com/ponceto/aym-js
+        </footer>  -->
+
+        
+
+        <script>
+            const localModules = {};
+            window.require = function(modulePath) {
+                if (modulePath.includes('bit-eater')) return localModules['bit-eater'];
+                if (modulePath.includes('tree')) return localModules['tree'];
+                if (modulePath.includes('new_decoder')) return localModules['new_decoder'];
+                if (modulePath.includes('null_decoder')) return localModules['null_decoder'];
+                if (modulePath.includes('decoder')) return localModules['decoder'];
+                if (modulePath.includes('archive')) return localModules['archive'];
+                return null;
+            };
+
+            
+            // Función auxiliar para cargar los scripts simulando el aislamiento de Node.js
+            async function loadCommonJsModule(name, url) {
+                const response = await fetch(url);
+                const code = await response.text();
+                
+                // Evaluamos el código envolviéndolo en un contexto donde 'module' y 'exports' son locales
+                const module = { exports: {} };
+                const exports = module.exports;
+                
+                // Ejecución segura
+                const runModule = new Function('module', 'exports', 'require', code);
+                runModule(module, exports, window.require);
+                
+                localModules[name] = module.exports;
+            }
+
+            // Cargamos de forma asíncrona y secuencial respetando el orden estricto de Node
+            (async () => {
+                try {
+                    await loadCommonJsModule('bit-eater', './vendor/libLHA/bit-eater.js');
+                    await loadCommonJsModule('tree', './vendor/libLHA/tree.js');
+                    await loadCommonJsModule('null_decoder', './vendor/libLHA/null_decoder.js');
+                    await loadCommonJsModule('new_decoder', './vendor/libLHA/new_decoder.js');
+                    await loadCommonJsModule('decoder', './vendor/libLHA/decoder.js');
+                    await loadCommonJsModule('archive', './vendor/libLHA/archive.js');
+                    await loadCommonJsModule('index', './vendor/libLHA/index.js');
+                    
+                    // Exportamos únicamente el punto de entrada limpio al entorno global
+                    window.JSLha = localModules['index'];
+                    console.log("Librería jslha acoplada con éxito y protegida contra colisiones.");
+                } catch (e) {
+                    console.error("Error cargando componentes locales de jslha:", e);
+                }
+            })();
+        </script>
+        
+        <script type="module" src="assets/js/index.js"></script>
+        <script type="module" src="assets/js/player.js"></script>
+        <script type="module" src="ChiptuneFile.js"></script>
+
+    </body>
+</html>
