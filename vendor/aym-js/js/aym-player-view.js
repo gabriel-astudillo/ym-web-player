@@ -67,15 +67,15 @@ export class AYM_PlayerView {
         
         this.aymFileDisplay = null; // Add GAM
         this.aymStatusDisplay = null; // Add GAM
-        this.aymSelector = null; // Add GAM
+        //this.aymSelector = null; // Add GAM
         this.filePicker  = null; // Add GAM para archivos ym
         window.addEventListener('load', async () => { await this.controller.onLoadWindow(); });
     }
 
     async powerOn() {
-        this.enablePlay();
+        //this.enablePlay();
         this.enableFilePlay(); // Add GAM
-        this.disableStop();
+        //this.disableStop();
         this.disableFileStop(); // Add GAM
         //this.enablePrev();
         //this.enableNext();
@@ -108,8 +108,8 @@ export class AYM_PlayerView {
         this.disableSeek();
         //this.disableNext();
         //this.disablePrev();
-        this.disableStop();
-        this.disablePlay();
+        //this.disableStop();
+        //this.disablePlay();
         this.disableFileStop(); // Add GAM
         this.disableFilePlay(); // Add GAM
         //this.setDisplay('AYM·Player is Off');
@@ -120,9 +120,9 @@ export class AYM_PlayerView {
     bind() {
         //this.bindDisplay();
         //this.bindFileDisplay(); // Add GAM
-        this.bindPlay();
+        //this.bindPlay();
         this.bindFilePlay(); // Add GAM
-        this.bindStop();
+        //this.bindStop();
         this.bindFileStop(); // Add GAM
         this.bindStatusDisplay(); // Add GAM
         //this.bindPrev();
@@ -138,7 +138,7 @@ export class AYM_PlayerView {
         this.bindPause();
         this.bindAnalyse();
         this.bindCanvas();
-        this.bindSelector();   // Add GAM
+        //this.bindSelector();   // Add GAM
         this.bindFilePicker(); // Add GAM
         this.bindHyperlinks();
     }
@@ -385,13 +385,13 @@ export class AYM_PlayerView {
         });
     }
 
-    enablePlay() {
+    /*enablePlay() {
         AYM_Utils.enableElement(this.aymPlay);
     }
 
     disablePlay() {
         AYM_Utils.disableElement(this.aymPlay);
-    }
+    }*/
 
     enableFilePlay() {
         AYM_Utils.enableElement(this.aymFilePlay);
