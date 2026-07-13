@@ -58,13 +58,10 @@ body > header {
     background-size: cover;
 }
 
-body > footer {
+/*body > footer {
     background: black;
     height: 10px;
-    /*background-image: url('/assets/images/footer.jpg');
-    background-position: bottom;
-    background-size: cover;*/
-}
+}*/
 
 body > nav {
     background: var(--card-background-color);

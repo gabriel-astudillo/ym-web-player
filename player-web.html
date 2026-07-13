@@ -12,187 +12,185 @@
         <link rel="stylesheet" href="assets/css/index.css">
     </head>
     <body>
-        <main class="container">
-            
-                <h2 class="text-to-uppercase">YM music player</h2>
+        <h2 class="text-to-uppercase">YM music player</h2>
 
-                <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 15px;">
+        <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 15px;">
+                
+            <!-- Columna Izquierda: Canvas General -->
+            <div style="flex: 0 0 auto;">
+
+                <fieldset id="aymEmulationControls" width="300px">
+                    <legend>Emulation</legend>
+                    <div class="grid">
+                        <button id="aymPower"><i class="fa-solid fa-power-off"></i><br>Power</button>
+                        <button id="aymReset"><i class="fa-solid fa-rotate"></i><br>Reset</button>
+                        <button id="aymPause"><i class="fa-solid fa-pause"></i><br>Pause</button>
+                    </div>
+                    <div class="grid">
+                        <button id="aymMuteA"><i class="fa-solid fa-volume-xmark"></i><br>Mute A</button>
+                        <button id="aymMuteB"><i class="fa-solid fa-volume-xmark"></i><br>Mute B</button>
+                        <button id="aymMuteC"><i class="fa-solid fa-volume-xmark"></i><br>Mute C</button>
+                    </div>
+                </fieldset>
+
+                
+
+                <div class="grid">                  
+                    <fieldset id="aymStorageControls">
+                        <legend>Load File</legend>                            
+                        <div class="grid">
+                            <div>
+                                <!--<label for="file-picker">Choose a Chiptune Track</label>-->
+                                <input type="file" id="file-picker" accept=".ym,.ym5,.ym6,.ay" />
+                            </div>
+                        </div>
+
+
+                        <div class="grid">
+                            <button id="aymFilePlay"><i class="fa-solid fa-play"></i><br>Play</button>
+                            <button id="aymFileStop"><i class="fa-solid fa-stop"></i><br>Stop</button>                            
+                        </div>
+
+                    </fieldset>
+
+                    <!--<fieldset id="aymPlaybackControls">
+                        <legend>Internal songs</legend>
+
+                        
+                        <div class="grid">
+                            <div>
+                                <select id="aymSelector">
+                                    <option value="">Encienda el reproductor...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid">
+                            <button id="aymPlay"><i class="fa-solid fa-play"></i><br>Play</button>
+                            <button id="aymStop"><i class="fa-solid fa-stop"></i><br>Stop</button>
+                        </div>
+                    </fieldset>-->
+                    <fieldset>
+                        <legend>Examples YM files</legend>
+                        <small>
+                        <div class="ym-tracks-container">
+                            <a href="/ym-data/axel_folley.ym" class="ym-link">Axel Folley</a><br>
+                            <a href="/ym-data/alphaville-big_japan.ym" class="ym-link">Big in Japan</a><br>
+                            <a href="/ym-data/omd-enola_gay.ym" class="ym-link">Enola Gay</a><br>
+                            <a href="/ym-data/Guns-sweet_child_o_mine.ym" class="ym-link">Sweet chiled o mine</a><br>
+                            <a href="/ym-data/RockRoll.ym" class="ym-link">Rock & roll</a>
+                        </div>
+                        </small>
+                    </fieldset> 
+                </div>
+
+                    
+
+                <fieldset id="aymPlaybackEstatus">
+                    <legend>Playback status</legend>
+                    <div class="grid">
+                            <p id="aymStatusDisplay">AYM Player is Off</p>
+                        </div>
+                    <div class="grid">
+                        <input id="aymSeek" type="range">
+                    </div>
+                </fieldset>
+        
+
+                
+            </div>
+
+            <div style="flex: 0 0 auto;">
+                <fieldset id="aymAnalyserControls">
+                    <legend>Spectrum analysis</legend>
+                    
+                    <!-- Switch de activación -->
+                    <div class="grid">
+                        <div>
+                            <label for="aymAnalyse">
+                                <input id="aymAnalyse" type="checkbox" role="switch"> Enable
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor Principal de Dos Columnas -->
+                    <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 15px;">
                         
                         <!-- Columna Izquierda: Canvas General -->
                         <div style="flex: 0 0 auto;">
+                            <canvas id="aymCanvas" width="440" height="225" style="border: 1px solid #ccc; display: block;"></canvas>
+                        </div>
+                        
 
-                            <fieldset id="aymEmulationControls" width="300px">
-                                <legend>Emulation</legend>
-                                <div class="grid">
-                                    <button id="aymPower"><i class="fa-solid fa-power-off"></i><br>Power</button>
-                                    <button id="aymReset"><i class="fa-solid fa-rotate"></i><br>Reset</button>
-                                    <button id="aymPause"><i class="fa-solid fa-pause"></i><br>Pause</button>
-                                </div>
-                                <div class="grid">
-                                    <button id="aymMuteA"><i class="fa-solid fa-volume-xmark"></i><br>Mute A</button>
-                                    <button id="aymMuteB"><i class="fa-solid fa-volume-xmark"></i><br>Mute B</button>
-                                    <button id="aymMuteC"><i class="fa-solid fa-volume-xmark"></i><br>Mute C</button>
-                                </div>
-                            </fieldset>
-
+                        <!-- Columna Derecha: Canales con sus etiquetas agrupados verticalmente -->
+                        <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 auto;">
                             
-
-                            <div class="grid">                  
-                                <fieldset id="aymStorageControls">
-                                    <legend>Load File</legend>                            
-                                    <div class="grid">
-                                        <div>
-                                            <!--<label for="file-picker">Choose a Chiptune Track</label>-->
-                                            <input type="file" id="file-picker" accept=".ym,.ym5,.ym6,.ay" />
-                                        </div>
-                                    </div>
-
-
-                                    <div class="grid">
-                                        <button id="aymFilePlay"><i class="fa-solid fa-play"></i><br>Play</button>
-                                        <button id="aymFileStop"><i class="fa-solid fa-stop"></i><br>Stop</button>                            
-                                    </div>
-
-                                </fieldset>
-
-                                <!--<fieldset id="aymPlaybackControls">
-                                    <legend>Internal songs</legend>
-
-                                    
-                                    <div class="grid">
-                                        <div>
-                                           <select id="aymSelector">
-                                                <option value="">Encienda el reproductor...</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="grid">
-                                        <button id="aymPlay"><i class="fa-solid fa-play"></i><br>Play</button>
-                                        <button id="aymStop"><i class="fa-solid fa-stop"></i><br>Stop</button>
-                                    </div>
-                                </fieldset>-->
-                                <fieldset>
-                                    <legend>Examples YM files</legend>
-                                    <div class="ym-tracks-container">
-                                        <a href="/ym-data/axel_folley.ym" class="ym-link">Axel Folley</a><br>
-                                        <a href="/ym-data/alphaville-big_japan.ym" class="ym-link">Big in Japan</a><br>
-                                        <a href="/ym-data/omd-enola_gay.ym" class="ym-link">Enola Gay</a><br>
-                                        <a href="/ym-data/Guns-sweet_child_o_mine.ym" class="ym-link">Sweet chiled o mine</a><br>
-                                        <a href="/ym-data/RockRoll.ym" class="ym-link">Rock & roll</a>
-                                    </div>
-                                </fieldset> 
+                            <!-- Bloque Canal 0 -->
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel A</span>
+                                <canvas id="aymCanvasCh0" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
                             </div>
 
-                              
+                            <!-- Bloque Canal 1 -->
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel B</span>
+                                <canvas id="aymCanvasCh1" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                            </div>
 
-                            <fieldset id="aymPlaybackEstatus">
-                                <legend>Playback status</legend>
-                                <div class="grid">
-                                        <p id="aymStatusDisplay">AYM Player is Off</p>
-                                    </div>
-                                <div class="grid">
-                                    <input id="aymSeek" type="range">
-                                </div>
-                            </fieldset>
-                    
+                            <!-- Bloque Canal 2 -->
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel C</span>
+                                <canvas id="aymCanvasCh2" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                            </div>
 
-                            
                         </div>
+                    </div>
 
+                    <!-- Contenedor Principal de Dos Columnas -->
+                    <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 15px;">
+                        
+                        <!-- Columna Izquierda: Canvas General -->
                         <div style="flex: 0 0 auto;">
-                                <fieldset id="aymAnalyserControls">
-                                    <legend>Spectrum analysis</legend>
-                                    
-                                    <!-- Switch de activación -->
-                                    <div class="grid">
-                                        <div>
-                                            <label for="aymAnalyse">
-                                                <input id="aymAnalyse" type="checkbox" role="switch"> Enable
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <!-- Contenedor Principal de Dos Columnas -->
-                                    <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 15px;">
-                                        
-                                        <!-- Columna Izquierda: Canvas General -->
-                                        <div style="flex: 0 0 auto;">
-                                            <canvas id="aymCanvas" width="440" height="225" style="border: 1px solid #ccc; display: block;"></canvas>
-                                        </div>
-                                        
-
-                                        <!-- Columna Derecha: Canales con sus etiquetas agrupados verticalmente -->
-                                        <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 auto;">
-                                            
-                                            <!-- Bloque Canal 0 -->
-                                            <div style="display: flex; flex-direction: column; gap: 2px;">
-                                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel A</span>
-                                                <canvas id="aymCanvasCh0" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
-                                            </div>
-
-                                            <!-- Bloque Canal 1 -->
-                                            <div style="display: flex; flex-direction: column; gap: 2px;">
-                                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel B</span>
-                                                <canvas id="aymCanvasCh1" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
-                                            </div>
-
-                                            <!-- Bloque Canal 2 -->
-                                            <div style="display: flex; flex-direction: column; gap: 2px;">
-                                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel C</span>
-                                                <canvas id="aymCanvasCh2" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-                                    <!-- Contenedor Principal de Dos Columnas -->
-                                    <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 15px;">
-                                        
-                                        <!-- Columna Izquierda: Canvas General -->
-                                        <div style="flex: 0 0 auto;">
-                                            <canvas id="aymTimeCanvas" width="440" height="225" style="border: 1px solid #ccc; display: block;"></canvas>
-                                        </div>
-                                        
-
-                                        <!-- Columna Derecha: Canales con sus etiquetas agrupados verticalmente -->
-                                        <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 auto;">
-                                            
-                                            <!-- Bloque Canal 0 -->
-                                            <div style="display: flex; flex-direction: column; gap: 2px;">
-                                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel A</span>
-                                                <canvas id="aymTimeCanvasCh0" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
-                                            </div>
-
-                                            <!-- Bloque Canal 1 -->
-                                            <div style="display: flex; flex-direction: column; gap: 2px;">
-                                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel B</span>
-                                                <canvas id="aymTimeCanvasCh1" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
-                                            </div>
-
-                                            <!-- Bloque Canal 2 -->
-                                            <div style="display: flex; flex-direction: column; gap: 2px;">
-                                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel C</span>
-                                                <canvas id="aymTimeCanvasCh2" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-
-
-                                </fieldset>
+                            <canvas id="aymTimeCanvas" width="440" height="225" style="border: 1px solid #ccc; display: block;"></canvas>
                         </div>
-                </div>
+                        
 
+                        <!-- Columna Derecha: Canales con sus etiquetas agrupados verticalmente -->
+                        <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 auto;">
+                            
+                            <!-- Bloque Canal 0 -->
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel A</span>
+                                <canvas id="aymTimeCanvasCh0" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                            </div>
 
-              
-        
-        </main>
+                            <!-- Bloque Canal 1 -->
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel B</span>
+                                <canvas id="aymTimeCanvasCh1" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                            </div>
 
-        <!--<footer>
-            Proyecto orignal: https://github.com/ponceto/aym-js
-        </footer>  -->
+                            <!-- Bloque Canal 2 -->
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel C</span>
+                                <canvas id="aymTimeCanvasCh2" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                            </div>
+
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <footer class="container">
+            <small>
+                Proyecto realizado por Gabriel Astudillo Muñoz 
+                <a href="https://github.com/gabriel-astudillo/ym-web-player" 
+                target="_blank">https://github.com/gabriel-astudillo/ym-web-player</a>
+                <br>
+                Proyecto original <a href="https://github.com/ponceto/aym-js" target="_blank">https://github.com/ponceto/aym-js</a>
+            </small>
+        </footer>
 
         
 
