@@ -220,6 +220,24 @@ export class AYM_PlayerModel {
             case 'UnmutedC':
                 this.controller.recvUnmutedC();
                 break;
+            case 'OnlyA_sel':
+                this.controller.recvOnlyA_sel();
+                break;
+            case 'OnlyB_sel':
+                this.controller.recvOnlyB_sel();
+                break;
+            case 'OnlyC_sel':
+                this.controller.recvOnlyC_sel();
+                break;
+            case 'OnlyA_unsel':
+                this.controller.recvOnlyA_unsel();
+                break;
+            case 'OnlyB_unsel':
+                this.controller.recvOnlyB_unsel();
+                break;
+            case 'OnlyC_unsel':
+                this.controller.recvOnlyC_unsel();
+                break;
             case 'Title':
                 this.controller.recvTitle(payload.message_data);
                 break;
@@ -280,6 +298,18 @@ export class AYM_PlayerModel {
 
     sendMuteC() {
         this.sendMessage('MuteC');
+    }
+
+    sendOnlyA() {
+        this.sendMessage('OnlyA');
+    }
+
+    sendOnlyB() {
+        this.sendMessage('OnlyB');
+    }
+
+    sendOnlyC() {
+        this.sendMessage('OnlyC');
     }
 
     sendPlay() {

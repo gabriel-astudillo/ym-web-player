@@ -80,6 +80,15 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
             case 'MuteC':
                 this.recvMuteC();
                 break;
+            case 'OnlyA':
+                this.recvOnlyA();
+                break;
+            case 'OnlyB':
+                this.recvOnlyB();
+                break;
+            case 'OnlyC':
+                this.recvOnlyC();
+                break;
             case 'Play':
                 this.recvPlay();
                 break;
@@ -168,6 +177,18 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         }
     }
 
+    recvOnlyA() {  // Cambiar lógica para silenciar canal A
+        if(this.chip_flags == (AYM_FLAG_MUTEB & AYM_FLAG_MUTEC)) {
+            this.chip_flags |= AYM_FLAG_MUTEB | AYM_FLAG_MUTEC;
+            this.sendOnlyA_sel();
+            console.log("recvOnlyA");
+        }
+        else {
+            this.chip_flags = 0;
+            this.sendOnlyA_unsel();
+        }
+    }
+
     recvMuteB() {
         if((this.chip_flags & AYM_FLAG_MUTEB) == 0) {
             this.chip_flags |= AYM_FLAG_MUTEB;
@@ -176,6 +197,18 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         else {
             this.chip_flags &= ~AYM_FLAG_MUTEB;
             this.sendUnmutedB();
+        }
+    }
+
+    recvOnlyB() { // Cambiar lógica para silenciar canal B
+        if(this.chip_flags == (AYM_FLAG_MUTEA & AYM_FLAG_MUTEC)) {
+            this.chip_flags |= AYM_FLAG_MUTEA | AYM_FLAG_MUTEC;
+            this.sendOnlyB_sel();
+            console.log("recvOnlyB");
+        }
+        else {
+            this.chip_flags = 0;
+            this.sendOnlyB_unsel();
         }
     }
 
@@ -189,6 +222,19 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
             this.sendUnmutedC();
         }
     }
+
+    recvOnlyC() { // Cambiar lógica para silenciar canal C
+        if(this.chip_flags == (AYM_FLAG_MUTEA & AYM_FLAG_MUTEB)) {
+            this.chip_flags |= AYM_FLAG_MUTEA | AYM_FLAG_MUTEB;
+            this.sendOnlyC_sel();
+            console.log("recvOnlyC");
+        }
+        else {
+            this.chip_flags = 0;
+            this.sendOnlyC_unsel();
+        }
+    }
+
 
     recvPlay(trackIndex = null) {
         this.chip_flags |= AYM_FLAG_RESET;
@@ -436,6 +482,30 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
 
     sendUnmutedC() {
         this.sendMessage('UnmutedC');
+    }
+
+    sendOnlyA_sel(){
+        this.sendMessage('OnlyA_sel');
+    }
+
+    sendOnlyA_unsel(){
+        this.sendMessage('OnlyA_unsel');
+    }
+
+    sendOnlyB_sel(){
+        this.sendMessage('OnlyB_sel');
+    }
+
+    sendOnlyB_unsel(){
+        this.sendMessage('OnlyB_unsel');
+    }
+
+    sendOnlyC_sel(){
+        this.sendMessage('OnlyC_sel');
+    }
+
+    sendOnlyC_unsel(){
+        this.sendMessage('OnlyC_unsel');
     }
 
     setChipMasterClock(master_clock) {

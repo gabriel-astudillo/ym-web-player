@@ -12,10 +12,10 @@
         <link rel="stylesheet" href="assets/css/index.css">
     </head>
     <body>
+    <main>
         <h2 class="text-to-uppercase">YM music player</h2>
-
         <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 15px;">
-                
+            
             <!-- Columna Izquierda: Canvas General -->
             <div style="flex: 0 0 auto;">
 
@@ -27,9 +27,14 @@
                         <button id="aymPause"><i class="fa-solid fa-pause"></i><br>Pause</button>
                     </div>
                     <div class="grid">
-                        <button id="aymMuteA"><i class="fa-solid fa-volume-xmark"></i><br>Mute A</button>
-                        <button id="aymMuteB"><i class="fa-solid fa-volume-xmark"></i><br>Mute B</button>
-                        <button id="aymMuteC"><i class="fa-solid fa-volume-xmark"></i><br>Mute C</button>
+                        <button id="aymMuteA"><i class="fa-solid fa-volume-xmark"></i><br>mute A</button>
+                        <button id="aymMuteB"><i class="fa-solid fa-volume-xmark"></i><br>mute B</button>
+                        <button id="aymMuteC"><i class="fa-solid fa-volume-xmark"></i><br>mute C</button>
+                    </div>
+                     <div class="grid">
+                        <button id="aymOnlyA"><i class="fa-solid fa-headphones"></i><br>Only A</button>
+                        <button id="aymOnlyB"><i class="fa-solid fa-headphones"></i><br>Only B</button>
+                        <button id="aymOnlyC"><i class="fa-solid fa-headphones"></i><br>Only C</button>
                     </div>
                 </fieldset>
 
@@ -75,10 +80,12 @@
                         <small>
                         <div class="ym-tracks-container">
                             <a href="/ym-data/axel_folley.ym" class="ym-link">Axel Folley</a><br>
+                            <a href="/ym-data/bach_the_future.ym" class="ym-link">Bach to the future</a><br>
                             <a href="/ym-data/alphaville-big_japan.ym" class="ym-link">Big in Japan</a><br>
                             <a href="/ym-data/omd-enola_gay.ym" class="ym-link">Enola Gay</a><br>
+                            <a href="/ym-data/like-a-virgin.ym" class="ym-link">Like a virgin</a><br>
                             <a href="/ym-data/Guns-sweet_child_o_mine.ym" class="ym-link">Sweet chiled o mine</a><br>
-                            <a href="/ym-data/RockRoll.ym" class="ym-link">Rock & roll</a>
+                            <a href="/ym-data/RockRoll.ym" class="ym-link">Rock & roll</a><br>
                         </div>
                         </small>
                     </fieldset> 
@@ -247,5 +254,6 @@
         <script type="module" src="assets/js/player.js"></script>
         <script type="module" src="ChiptuneFile.js"></script>
 
+    </main>    
     </body>
 </html>

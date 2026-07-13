@@ -107,6 +107,18 @@ export class AYM_Player {
         this.model.sendMuteC();
     }
 
+    async onClickOnlyA() {
+        this.model.sendOnlyA();
+    }
+
+    async onClickOnlyB() {
+        this.model.sendOnlyB();
+    }
+
+    async onClickOnlyC() {
+        this.model.sendOnlyC();
+    }
+
     async onClickPower() {
         if(this.model.isNotPowered()) {
             await this.model.powerOn();
@@ -212,6 +224,31 @@ export class AYM_Player {
     async recvUnmutedC() {
         this.view.setUnmutedC();
     }
+
+    async recvOnlyA_sel() {
+        this.view.setOnlyA();
+    }
+
+    async recvOnlyA_unsel() {
+        this.view.unSetOnlyA();
+    }
+
+    async recvOnlyB_sel() {
+        this.view.setOnlyB();
+    }
+
+    async recvOnlyB_unsel() {
+        this.view.unSetOnlyB();
+    }
+
+    async recvOnlyC_sel() {
+        this.view.setOnlyC();
+    }
+
+    async recvOnlyC_unsel() {
+        this.view.unSetOnlyC();
+    }
+
 
     /////////////////////////////////////////////////////////////////////
     // Add GAM

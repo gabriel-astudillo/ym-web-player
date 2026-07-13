@@ -393,3 +393,10 @@ button.is-toggled {
     padding: 0.5rem 1rem;
     font-size: 0.85rem;
 }
+
+div.ym-tracks-container {
+    background-color: rgb(205, 238, 249);
+    height: 120px; /* Define la altura máxima visible */
+    overflow-y: visible; /* Muestra el scroll vertical cuando sea necesario */
+    overflow-x: hidden; /* Oculta el scroll horizontal */
+}

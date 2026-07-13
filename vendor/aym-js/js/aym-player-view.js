@@ -34,9 +34,15 @@ export class AYM_PlayerView {
         this.aymSeek    = null;
         this.aymGain    = null;
         this.aymChip0   = null;
+
         this.aymMuteA   = null;
         this.aymMuteB   = null;
         this.aymMuteC   = null;
+
+        this.aymOnlyA   = null;
+        this.aymOnlyB   = null;
+        this.aymOnlyC   = null;
+
         this.aymPower   = null;
         this.aymReset   = null;
         this.aymPause   = null;
@@ -82,9 +88,16 @@ export class AYM_PlayerView {
         this.enableSeek();
         //this.enableGain();
         //this.enableChip0();
+
         this.enableMuteA();
         this.enableMuteB();
         this.enableMuteC();
+
+        this.enableOnlyA();
+        this.enableOnlyB();
+        this.enableOnlyC();
+
+
         this.enableReset();
         this.enablePause();
         this.enableAnalyse();
@@ -100,9 +113,17 @@ export class AYM_PlayerView {
         this.disableAnalyse();
         this.disablePause();
         this.disableReset();
+
         this.disableMuteC();
         this.disableMuteB();
         this.disableMuteA();
+
+        this.disableOnlyA();
+        this.disableOnlyB();
+        this.disableOnlyC();
+
+        //this.disablePower();
+
         //this.disableChip0();
         //this.disableGain();
         this.disableSeek();
@@ -130,9 +151,15 @@ export class AYM_PlayerView {
         this.bindSeek();
         //this.bindGain();
         //this.bindChip0();
+
         this.bindMuteA();
         this.bindMuteB();
         this.bindMuteC();
+
+        this.bindOnlyA();
+        this.bindOnlyB();
+        this.bindOnlyC();
+
         this.bindPower();
         this.bindReset();
         this.bindPause();
@@ -261,6 +288,30 @@ export class AYM_PlayerView {
             this.aymMuteC = $('#aymMuteC');
             this.aymMuteC.disabled = true;
             this.aymMuteC.addEventListener('click', async () => { await this.controller.onClickMuteC(); });
+        }
+    }
+
+    bindOnlyA() {
+        if(this.aymOnlyA == null) {
+            this.aymOnlyA = $('#aymOnlyA');
+            this.aymOnlyA.disabled = true;
+            this.aymOnlyA.addEventListener('click', async () => { await this.controller.onClickOnlyA(); });
+        }
+    }
+
+    bindOnlyB() {
+        if(this.aymOnlyB == null) {
+            this.aymOnlyB = $('#aymOnlyB');
+            this.aymOnlyB.disabled = true;
+            this.aymOnlyB.addEventListener('click', async () => { await this.controller.onClickOnlyB(); });
+        }
+    }
+
+    bindOnlyC() {
+        if(this.aymOnlyC == null) {
+            this.aymOnlyC = $('#aymOnlyC');
+            this.aymOnlyC.disabled = true;
+            this.aymOnlyC.addEventListener('click', async () => { await this.controller.onClickOnlyC(); });
         }
     }
 
@@ -489,6 +540,30 @@ export class AYM_PlayerView {
         AYM_Utils.disableElement(this.aymMuteC);
     }
 
+    enableOnlyA() {
+        AYM_Utils.enableElement(this.aymOnlyA);
+    }
+
+    disableOnlyA() {
+        AYM_Utils.disableElement(this.aymOnlyA);
+    }
+
+    enableOnlyB() {
+        AYM_Utils.enableElement(this.aymOnlyB);
+    }
+
+    disableOnlyB() {
+        AYM_Utils.disableElement(this.aymOnlyB);
+    }
+
+    enableOnlyC() {
+        AYM_Utils.enableElement(this.aymOnlyC);
+    }
+
+    disableOnlyC() {
+        AYM_Utils.disableElement(this.aymOnlyC);
+    }
+
     enablePower() {
         AYM_Utils.enableElement(this.aymPower);
     }
@@ -612,6 +687,42 @@ export class AYM_PlayerView {
     setUnmutedC() {
         if(this.aymMuteC != null) {
             this.aymMuteC.className = '';
+        }
+    }
+
+    setOnlyA() {
+        if(this.aymOnlyA != null) {
+            this.aymOnlyA.className = 'is-toggled';
+        }
+    }
+
+    unSetOnlyA() {
+        if(this.aymOnlyA != null) {
+            this.aymOnlyA.className = '';
+        }
+    }
+
+    setOnlyB() {
+        if(this.aymOnlyB != null) {
+            this.aymOnlyB.className = 'is-toggled';
+        }
+    }
+
+    unSetOnlyB() {
+        if(this.aymOnlyB != null) {
+            this.aymOnlyB.className = '';
+        }
+    }
+
+    setOnlyC() {
+        if(this.aymOnlyC != null) {
+            this.aymOnlyC.className = 'is-toggled';
+        }
+    }
+
+    unSetOnlyC() {
+        if(this.aymOnlyC != null) {
+            this.aymOnlyC.className = '';
         }
     }
 
