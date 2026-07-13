@@ -184,7 +184,7 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
             console.log("recvOnlyA");
         }
         else {
-            this.chip_flags = 0;
+            this.chip_flags &= ~AYM_FLAG_MUTEB & ~AYM_FLAG_MUTEC;
             this.sendOnlyA_unsel();
         }
     }
@@ -207,7 +207,7 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
             console.log("recvOnlyB");
         }
         else {
-            this.chip_flags = 0;
+            this.chip_flags &= ~AYM_FLAG_MUTEA & ~AYM_FLAG_MUTEC;;
             this.sendOnlyB_unsel();
         }
     }
@@ -230,7 +230,7 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
             console.log("recvOnlyC");
         }
         else {
-            this.chip_flags = 0;
+            this.chip_flags &= ~AYM_FLAG_MUTEA & ~AYM_FLAG_MUTEB;
             this.sendOnlyC_unsel();
         }
     }
