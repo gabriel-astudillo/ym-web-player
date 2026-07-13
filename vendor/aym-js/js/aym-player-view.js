@@ -140,6 +140,7 @@ export class AYM_PlayerView {
         this.bindCanvas();
         this.bindSelector();   // Add GAM
         this.bindFilePicker(); // Add GAM
+        this.bindHyperlinks();
     }
 
     bindDisplay() {
@@ -360,6 +361,28 @@ export class AYM_PlayerView {
                 }
             });
         }
+    }
+
+    //////////////////////////////////////////////////////
+    // ADD GAM
+    bindHyperlinks() {
+        // Buscamos todos los enlaces de canciones .ym en el documento
+        const links = document.querySelectorAll('.ym-link');
+        
+        links.forEach(link => {
+            link.addEventListener('click', async (event) => {
+                // 1. Evitamos que el navegador intente descargar o navegar al archivo directamente
+                event.preventDefault(); 
+                
+                // 2. Obtenemos la URL exacta del atributo href y el nombre del texto
+                const fileUrl = event.target.getAttribute('href');
+                const songName = event.target.innerText;
+                
+                // 3. Cambiamos el contexto de origen y llamamos al controlador pasándole los datos
+                this.controller.audioSource = 'external';
+                await this.controller.onHyperlinkFileSelected(fileUrl, songName);
+            });
+        });
     }
 
     enablePlay() {

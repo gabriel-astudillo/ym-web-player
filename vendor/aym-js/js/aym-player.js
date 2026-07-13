@@ -33,7 +33,7 @@ export class AYM_Player {
 
     async onLoadWindow() {
         this.view.bind();
-        this.onClickPower();
+        //this.onClickPower();
     }
 
     async onClickPlay() {
@@ -283,6 +283,34 @@ export class AYM_Player {
         } catch (error) {
             //this.view.setFileDisplay("Error al abrir archivo");
             this.view.setStatusDisplay("Error de decodificación");
+            console.error(error);
+        }
+    }
+
+    //////////////////////////////////////////////////////////////
+    // Add GAM
+    async onHyperlinkFileSelected(fileUrl, songName) {
+        try {
+            this.view.setFileDisplay(`Descargando: ${songName}...`);
+            
+            // 1. Descargamos los bytes puros del archivo .ym desde el servidor de producción
+            const response = await fetch(fileUrl);
+            if (!response.ok) throw new Error("No se pudo obtener el archivo desde el enlace.");
+            
+            const blob = await response.blob();
+            
+            // 2. Extraemos el nombre del archivo real a partir de la URL
+            const filename = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+            
+            // 3. TRUCO CLAVE: Creamos un objeto File real en memoria idéntico al del input file
+            const mockFile = new File([blob], filename, { type: "application/octet-stream" });
+            
+            // 4. Invocamos de forma idéntica a tu pipeline original pasándole nuestro archivo ficticio
+            await this.onFileSelected(mockFile);
+            
+            this.view.setFileDisplay(`Remoto: ${songName}`);
+        } catch (error) {
+            this.view.setFileDisplay("Error al reproducir el enlace");
             console.error(error);
         }
     }
