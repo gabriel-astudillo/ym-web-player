@@ -26,7 +26,7 @@ El funcionamiento del PSG AY-3-8910 se basa en el uso de 14 registros, que se en
 
 <div align="center">
 <img src="ay38910/registers.png" width="80%">
-</center>
+</div>
 
 
 ## YM file format
