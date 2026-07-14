@@ -95,7 +95,7 @@ export class ChiptuneFile {
         }
 
         // ========================================================================
-        // Separar flujos nibarios por canal/registro
+        // Separar flujos binarios por canal/registro
         // ========================================================================
         this.registers = {};
         for (let i = 0; i < this.numRegisters; i++) {
@@ -268,7 +268,7 @@ export class ChiptuneFile {
             }
 
             if (ymType === 'unknown') {
-                throw new Error("La estructura extraída por jslha carece de una firma YM válida.");
+                throw new Error("El archivo LHA extraído no tiene una firma YM válida.");
             }
 
             this.processLog += `Decompressed file format type: ${ymType}\n`;
