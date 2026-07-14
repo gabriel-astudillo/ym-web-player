@@ -13,6 +13,10 @@ The YM2149F is a Programmable Sound Generator (PSG) manufactured by Yamaha, virt
 - 1 tone/noise mix channel
 - Range: 30 Hz to 125 kHz
 
+## YM file format
+
+http://leonard.oxg.free.fr/
+
 
 ## LICENSE TERMS
 
