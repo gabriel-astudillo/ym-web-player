@@ -177,18 +177,6 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         }
     }
 
-    recvOnlyA() {  // Cambiar lógica para silenciar canal A
-        if(this.chip_flags == (AYM_FLAG_MUTEB & AYM_FLAG_MUTEC)) {
-            this.chip_flags |= AYM_FLAG_MUTEB | AYM_FLAG_MUTEC;
-            this.sendOnlyA_sel();
-            console.log("recvOnlyA");
-        }
-        else {
-            this.chip_flags &= ~AYM_FLAG_MUTEB & ~AYM_FLAG_MUTEC;
-            this.sendOnlyA_unsel();
-        }
-    }
-
     recvMuteB() {
         if((this.chip_flags & AYM_FLAG_MUTEB) == 0) {
             this.chip_flags |= AYM_FLAG_MUTEB;
@@ -197,18 +185,6 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         else {
             this.chip_flags &= ~AYM_FLAG_MUTEB;
             this.sendUnmutedB();
-        }
-    }
-
-    recvOnlyB() { // Cambiar lógica para silenciar canal B
-        if(this.chip_flags == (AYM_FLAG_MUTEA & AYM_FLAG_MUTEC)) {
-            this.chip_flags |= AYM_FLAG_MUTEA | AYM_FLAG_MUTEC;
-            this.sendOnlyB_sel();
-            console.log("recvOnlyB");
-        }
-        else {
-            this.chip_flags &= ~AYM_FLAG_MUTEA & ~AYM_FLAG_MUTEC;;
-            this.sendOnlyB_unsel();
         }
     }
 
@@ -223,14 +199,105 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         }
     }
 
+    isMuteA(){
+        let isMute = ((this.chip_flags & AYM_FLAG_MUTEA) >> 4) & 0x1;
+        console.log("isMuteA: " + isMute);
+        return isMute;
+    }
+
+    isMuteB(){
+        let isMute = ((this.chip_flags & AYM_FLAG_MUTEB) >> 5) & 0x1;
+        console.log("isMuteB: " + isMute);
+         return isMute;
+    }
+    
+    isMuteC(){
+        let isMute = ((this.chip_flags & AYM_FLAG_MUTEC) >> 6) & 0x1;
+        console.log("isMuteC: " + isMute);
+        return isMute;
+    }
+
+    recvOnlyA() {  // Cambiar lógica para silenciar canal A
+        let isChannelB_on = !this.isMuteB();
+        let isChannelC_on = !this.isMuteC();
+        if(isChannelB_on && isChannelC_on){
+            this.chip_flags |=  AYM_FLAG_MUTEB | AYM_FLAG_MUTEC;
+            this.sendOnlyA_sel();
+            this.sendOnlyB_unsel();
+            this.sendOnlyC_unsel();
+            console.log("recvOnlyA");
+        }
+        else {
+            this.chip_flags &= ~AYM_FLAG_MUTEB;
+            this.chip_flags &= ~AYM_FLAG_MUTEC; 
+            
+            this.sendOnlyA_unsel();
+            this.sendOnlyB_unsel();
+            this.sendOnlyC_unsel();
+        }
+
+        /*if(!this.isMuteA()){
+            this.chip_flags |= AYM_FLAG_MUTEB | AYM_FLAG_MUTEC;
+            this.sendOnlyA_sel();
+            console.log("recvOnlyA");
+        }
+        else {
+            if(this.isMuteB()){
+                this.chip_flags &= ~AYM_FLAG_MUTEB;
+            }
+            if(this.isMuteC()){
+                this.chip_flags &= ~AYM_FLAG_MUTEC; 
+            }
+            this.sendOnlyA_unsel();
+        }*/
+
+    }
+
+    recvOnlyB() { // Cambiar lógica para silenciar canal B
+        let isChannelA_on = !this.isMuteA();
+        let isChannelC_on = !this.isMuteC();
+        if( isChannelA_on && isChannelC_on) {
+            this.chip_flags |= AYM_FLAG_MUTEA | AYM_FLAG_MUTEC;
+            this.sendOnlyB_sel();
+            this.sendOnlyA_unsel();
+            this.sendOnlyC_unsel();
+            console.log("recvOnlyB");
+        }
+        else {
+            this.chip_flags &= ~AYM_FLAG_MUTEA;
+            this.chip_flags &= ~AYM_FLAG_MUTEC; 
+            this.sendOnlyB_unsel();
+        }
+       /*if(!this.isMuteB()) {
+            this.chip_flags |= AYM_FLAG_MUTEA | AYM_FLAG_MUTEC;
+            this.sendOnlyB_sel();
+            console.log("recvOnlyB");
+        }
+        else {
+            if(this.isMuteA()){
+                this.chip_flags &= ~AYM_FLAG_MUTEA;
+            }
+            if(this.isMuteC()){
+                this.chip_flags &= ~AYM_FLAG_MUTEC; 
+            }
+            this.sendOnlyB_unsel();
+        }*/
+
+    }
+
     recvOnlyC() { // Cambiar lógica para silenciar canal C
-        if(this.chip_flags == (AYM_FLAG_MUTEA & AYM_FLAG_MUTEB)) {
+        let isChannelA_on = !this.isMuteA();
+        let isChannelB_on = !this.isMuteB();
+        if(isChannelA_on && isChannelB_on) {
             this.chip_flags |= AYM_FLAG_MUTEA | AYM_FLAG_MUTEB;
+            this.sendOnlyA_unsel();
+            this.sendOnlyB_unsel();
             this.sendOnlyC_sel();
             console.log("recvOnlyC");
         }
         else {
-            this.chip_flags &= ~AYM_FLAG_MUTEA & ~AYM_FLAG_MUTEB;
+            this.chip_flags &= ~AYM_FLAG_MUTEA;
+            this.chip_flags &= ~AYM_FLAG_MUTEB; 
             this.sendOnlyC_unsel();
         }
     }

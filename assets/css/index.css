@@ -395,8 +395,13 @@ button.is-toggled {
 }
 
 div.ym-tracks-container {
-    background-color: rgb(205, 238, 249);
-    height: 120px; /* Define la altura máxima visible */
+    border: 1px solid var(--form-element-border-color);
+    border-radius:#000;
+    border-radius: 5px;
+    margin: 0px;
+    padding: 0px;
+    background-color: rgb(244, 244, 244);
+    height: 100%; /* Define la altura máxima visible */
     overflow-y: visible; /* Muestra el scroll vertical cuando sea necesario */
     overflow-x: hidden; /* Oculta el scroll horizontal */
 }
