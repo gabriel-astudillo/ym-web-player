@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ### AYM·JS
 
-This project is released under the terms of the General Public License version 2.
+<a href="https://github.com/ponceto/aym-js">AYM JS</a> is released under the terms of the General Public License version 2.
 
 ```
 aym-js - Copyright (c) 2001-2025 - Olivier Poncet
