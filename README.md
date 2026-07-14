@@ -19,7 +19,7 @@ El diagrama de bloques de alto nivel se muestra en la siguiente figura.
 
 <div align="center">
 <img src="ay38910/8910-diag.png" width="80%">
-</center>
+</div>
 
 
 El funcionamiento del PSG AY-3-8910 se basa en el uso de 14 registros, que se encargan de controlar las frecuencias de cada canal, del ruido, la ganancia de cada canal y las características de la envolvente que se requiere configurar.
