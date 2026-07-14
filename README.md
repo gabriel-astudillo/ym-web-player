@@ -13,6 +13,22 @@ The YM2149F is a Programmable Sound Generator (PSG) manufactured by Yamaha, virt
 - 1 tone/noise mix channel
 - Range: 30 Hz to 125 kHz
 
+### Arquitectura
+
+El diagrama de bloques de alto nivel se muestra en la siguiente figura.
+
+<div align="center">
+<img src="ay38910/8910-diag.png" width="80%">
+</center>
+
+
+El funcionamiento del PSG AY-3-8910 se basa en el uso de 14 registros, que se encargan de controlar las frecuencias de cada canal, del ruido, la ganancia de cada canal y las características de la envolvente que se requiere configurar.
+
+<div align="center">
+<img src="ay38910/registers.png" width="80%">
+</center>
+
+
 ## YM file format
 
 http://leonard.oxg.free.fr/
