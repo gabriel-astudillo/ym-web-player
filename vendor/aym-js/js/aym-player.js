@@ -135,11 +135,10 @@ export class AYM_Player {
         this.view.setSelectedTrackIndex(data.track_index); // <-- Sincroniza el select de la UI
     }
 
-    async recvTitleFile(data) {
+    async recvFileData(data) {
         // Add GAM
-        // data ahora contiene { title, track_index }
-        //this.view.setFileDisplay(data.title);
-        this.view.setStatusDisplay(data.title);
+        let status = data.title + "\n" + data.duration + "s";
+        this.view.setStatusDisplay(status);
     }
 
     async recvSeek(seek) {
@@ -271,6 +270,7 @@ export class AYM_Player {
                         title: file.name.replace('.ym', ''),
                         type: 'YM',
                         frames: nFrames,
+                        duration: nFrames * 0.02,
                         interleaved: interleaved[0] === 1,
                         // Pasamos la estructura plana de datos binarios decodificados
                         songData: songData 

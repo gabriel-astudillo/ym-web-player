@@ -319,20 +319,6 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         }
     }
 
-
-    /*recvPlay(trackIndex = null) {
-        this.chip_flags |= AYM_FLAG_RESET;
-        this.music = this.playlist.getMusic();
-        console.log(this.music);
-
-        this.music_index = 0;
-        this.music_count = this.music.length;
-        this.music_ticks = 0;
-        this.music_clock = this.music.framerate;
-        this.setChipMasterClock(this.music.frequency);
-        this.sendPlaying();        
-    }*/
-
     recvStop() {
         this.chip_flags |= AYM_FLAG_RESET;
         this.music_index = -1;
@@ -379,7 +365,8 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
             length: extMusic.frames.length,
             framerate: 50, // Frecuencia estándar de actualización (Hz)
             frequency: 2000000,
-            frames: extMusic.frames
+            frames: extMusic.frames,
+            duration: extMusic.duration // en segundos
         };
 
         //console.log(this.music);
@@ -398,11 +385,8 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         this.music_clock = this.music.framerate;
         this.setChipMasterClock(this.music.frequency);
 
-        // Quitamos estados de pausa y notificamos los cambios a la interfaz de usuario
         //this.flags &= ~AYM_FLAG_PAUSE;
-        //this.sendChanged();
-        //this.sendTitle();
-        //this.sendPlaying();
+ 
         this.sendFilePlaying();
         
     }
@@ -415,9 +399,10 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
     sendFilePlaying() {
         this.sendMessage('PlayingFile');
         this.port.postMessage({
-            message_type: 'TitleFile',
+            message_type: 'FileData',
             message_data: {
-                title: this.music.title || "Unknown"
+                title: this.music.title || "Unknown",
+                duration: this.music.duration
             }
         });
         

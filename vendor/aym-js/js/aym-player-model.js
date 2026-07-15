@@ -241,8 +241,8 @@ export class AYM_PlayerModel {
             case 'Title':
                 this.controller.recvTitle(payload.message_data);
                 break;
-            case 'TitleFile':
-                this.controller.recvTitleFile(payload.message_data);
+            case 'FileData':
+                this.controller.recvFileData(payload.message_data);
                 break;
             case 'Seek':
                 this.controller.recvSeek(payload.message_data);
