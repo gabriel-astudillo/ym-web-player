@@ -2,6 +2,12 @@
 
 [Online version](https://ym-web-player.netlify.app/player-web)
 
+## Install
+
+* Clone this repo.
+* Execute `tart-server.sh` script.
+* Open your web browser and go to http://localhost:8000
+
 ## The hardware: AY-3-8910 and YM2149F
 
 ### History
