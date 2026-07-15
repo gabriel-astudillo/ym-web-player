@@ -221,15 +221,12 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
     }
 
     recvOnlyA() {  // Cambiar lógica para silenciar canal A
-        //let isChannelB_on = !this.isMuteB();
-        //let isChannelC_on = !this.isMuteC();
-        //if(isChannelB_on && isChannelC_on){
         if(this.onlyA == false){
-            this.chip_flags |=  AYM_FLAG_MUTEB | AYM_FLAG_MUTEC;
+            this.chip_flags =  AYM_FLAG_MUTEB | AYM_FLAG_MUTEC;
+           
             this.sendOnlyA_sel();
-
-            console.log("recvOnlyA");
             this.onlyA = true;
+
             if(this.onlyB){
                 this.onlyB = false;
                 this.sendOnlyB_unsel();
@@ -238,41 +235,32 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
                 this.onlyC = false;
                 this.sendOnlyC_unsel();
             }
+
+            this.sendUnmutedA();
+            this.sendMutedB();
+            this.sendMutedC();
         }
         else {
             this.chip_flags &= ~AYM_FLAG_MUTEB;
             this.chip_flags &= ~AYM_FLAG_MUTEC; 
             
             this.onlyA = false;
+            
             this.sendOnlyA_unsel();
+            this.sendUnmutedA();
+            this.sendUnmutedB();
+            this.sendUnmutedC();
         }
-
-        /*if(!this.isMuteA()){
-            this.chip_flags |= AYM_FLAG_MUTEB | AYM_FLAG_MUTEC;
-            this.sendOnlyA_sel();
-            console.log("recvOnlyA");
-        }
-        else {
-            if(this.isMuteB()){
-                this.chip_flags &= ~AYM_FLAG_MUTEB;
-            }
-            if(this.isMuteC()){
-                this.chip_flags &= ~AYM_FLAG_MUTEC; 
-            }
-            this.sendOnlyA_unsel();
-        }*/
 
     }
 
     recvOnlyB() { // Cambiar lógica para silenciar canal B
-        //let isChannelA_on = !this.isMuteA();
-        //let isChannelC_on = !this.isMuteC();
-        //if( isChannelA_on && isChannelC_on) {
         if(this.onlyB == false){
-            this.chip_flags |= AYM_FLAG_MUTEA | AYM_FLAG_MUTEC;
-            this.sendOnlyB_sel();
-            this.onlyB = true;
+            this.chip_flags = AYM_FLAG_MUTEA | AYM_FLAG_MUTEC;
 
+            this.onlyB = true;
+            this.sendOnlyB_sel();
+            
             if(this.onlyA){
                 this.onlyA = false;
                 this.sendOnlyA_unsel();
@@ -280,46 +268,33 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
             if(this.onlyC){
                 this.onlyC = false;
                 this.sendOnlyC_unsel();
-            }
+            }   
+
+            this.sendMutedA();
+            this.sendUnmutedB();
+            this.sendMutedC();
+
             
-            
-            console.log("recvOnlyB");
         }
         else {
             this.chip_flags &= ~AYM_FLAG_MUTEA;
             this.chip_flags &= ~AYM_FLAG_MUTEC; 
 
             this.onlyB = false;
-            this.sendOnlyB_unsel();
 
+            this.sendOnlyB_unsel();
+            this.sendUnmutedA();
+            this.sendUnmutedB();
+            this.sendUnmutedC();
             
         }
-       /*if(!this.isMuteB()) {
-            this.chip_flags |= AYM_FLAG_MUTEA | AYM_FLAG_MUTEC;
-            this.sendOnlyB_sel();
-            console.log("recvOnlyB");
-        }
-        else {
-            if(this.isMuteA()){
-                this.chip_flags &= ~AYM_FLAG_MUTEA;
-            }
-            if(this.isMuteC()){
-                this.chip_flags &= ~AYM_FLAG_MUTEC; 
-            }
-            this.sendOnlyB_unsel();
-        }*/
-
     }
 
     recvOnlyC() { // Cambiar lógica para silenciar canal C
-        //let isChannelA_on = !this.isMuteA();
-        //let isChannelB_on = !this.isMuteB();
-        //if(isChannelA_on && isChannelB_on) {
         if(this.onlyC == false){
-            this.chip_flags |= AYM_FLAG_MUTEA | AYM_FLAG_MUTEB;
+            this.chip_flags = AYM_FLAG_MUTEA | AYM_FLAG_MUTEB;
             
             this.sendOnlyC_sel();
-            console.log("recvOnlyC");
             this.onlyC = true;
 
             if(this.onlyA){
@@ -331,13 +306,20 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
                 this.sendOnlyB_unsel();
             }
 
-
+            this.sendMutedA();
+            this.sendMutedB();
+            this.sendUnmutedC();
         }
         else {
             this.chip_flags &= ~AYM_FLAG_MUTEA;
             this.chip_flags &= ~AYM_FLAG_MUTEB; 
+
             this.onlyC = false;
+
             this.sendOnlyC_unsel();
+            this.sendUnmutedA();
+            this.sendUnmutedB();
+            this.sendUnmutedC();
         }
     }
 
