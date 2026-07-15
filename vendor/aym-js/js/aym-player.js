@@ -36,26 +36,6 @@ export class AYM_Player {
         //this.onClickPower();
     }
 
-    async onClickPlay() {
-        
-        //this.model.sendPlay();
-        // Obtener el índice seleccionado en el componente <select>
-        const trackIndex = this.view.getSelectedTrackIndex();
-        // Se envía el comando Play incluyendo el índice de la canción
-        this.model.sendPlay(trackIndex);
-
-        /*
-        if (this.audioSource === 'external') {
-            // Si hay un archivo externo activo, mandamos 'Play' puro (null) para reanudarlo
-            this.model.sendPlay(null);
-        } else {
-            // Si estamos en modo interno, mantenemos la sincronización con el <select>
-            const trackIndex = this.view.getSelectedTrackIndex();
-            this.model.sendPlay(trackIndex);
-        }
-        */
-    }
-
     async onClickFilePlay(){
         if(this.externalMusic != null){
             this.model.sendExternalTrack(this.externalMusic);
@@ -123,8 +103,6 @@ export class AYM_Player {
         if(this.model.isNotPowered()) {
             await this.model.powerOn();
             await this.view.powerOn();
-            // Solicitamos la lista de canciones dinámicamente al iniciar
-            this.model.sendRequestTrackList();
         }
         else {
             await this.view.powerOff();
@@ -166,10 +144,6 @@ export class AYM_Player {
 
     async recvSeek(seek) {
         this.view.setSeekValue(seek);
-    }
-
-    async recvPlaying() {
-        this.view.setPlaying();
     }
 
     async recvPlayingFile(){
@@ -328,7 +302,7 @@ export class AYM_Player {
     // Add GAM
     async onHyperlinkFileSelected(fileUrl, songName) {
         try {
-            this.view.setFileDisplay(`Descargando: ${songName}...`);
+            this.view.setStatusDisplay(`Descargando: ${songName}...`);
             
             // 1. Descargamos los bytes puros del archivo .ym desde el servidor de producción
             const response = await fetch(fileUrl);
@@ -345,9 +319,9 @@ export class AYM_Player {
             // 4. Invocamos de forma idéntica a tu pipeline original pasándole nuestro archivo ficticio
             await this.onFileSelected(mockFile);
             
-            this.view.setFileDisplay(`Remoto: ${songName}`);
+            this.view.setStatusDisplay(`Remoto: ${songName}`);
         } catch (error) {
-            this.view.setFileDisplay("Error al reproducir el enlace");
+            this.view.setStatusDisplay("Error al reproducir el enlace");
             console.error(error);
         }
     }

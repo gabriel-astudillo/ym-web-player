@@ -16,7 +16,7 @@
  */
 
 import { AYM_Emulator } from './aym-emulator.js';
-import { AYM_Playlist } from './aym-playlist.js';
+//import { AYM_Playlist } from './aym-playlist.js';
 
 // ---------------------------------------------------------------------------
 // Some useful constants
@@ -35,7 +35,7 @@ const AYM_FLAG_MUTEC = 0x40;
 export class AYM_PlayerProcessor extends AudioWorkletProcessor {
     constructor(options) {
         super();
-        this.playlist    = new AYM_Playlist();
+        //this.playlist    = new AYM_Playlist();
         this.chip        = new AYM_Emulator({});
         this.chip_flags  = 0;
         this.chip_ticks  = 0;
@@ -113,10 +113,6 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
             // Add GAM
             case 'SelectTrack':
                 this.recvSelectTrack(payload.message_data);
-                break;
-             // Add GAM
-            case 'RequestTrackList':
-                this.sendTrackList();
                 break;
             // Add GAM
             case 'PlayExternal':
@@ -324,7 +320,7 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
     }
 
 
-    recvPlay(trackIndex = null) {
+    /*recvPlay(trackIndex = null) {
         this.chip_flags |= AYM_FLAG_RESET;
         this.music = this.playlist.getMusic();
         console.log(this.music);
@@ -334,30 +330,8 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         this.music_ticks = 0;
         this.music_clock = this.music.framerate;
         this.setChipMasterClock(this.music.frequency);
-        this.sendPlaying();
-
-        // Solo cambia de pista interna si el argumento es un número válido
-        /*
-        if (trackIndex !== null && trackIndex !== undefined) {
-            const music = this.playlist.setTrack(trackIndex);
-            if (music != null) {
-                this.music = music;
-                this.music_index = 0;
-                this.music_count = this.music.length;
-                this.music_ticks = 0;
-                this.music_clock = this.music.framerate;
-                this.setChipMasterClock(this.frequency);
-                this.sendChanged();
-                this.sendTitle();
-            }
-        }
-
-        // Si trackIndex era null, esta línea simplemente quita la pausa 
-        // y continúa reproduciendo los bytes que ya estaban en "this.music"
-        this.flags &= ~AYM_FLAG_PAUSE;
-        this.sendPlaying();*/
-        
-    }
+        this.sendPlaying();        
+    }*/
 
     recvStop() {
         this.chip_flags |= AYM_FLAG_RESET;
@@ -379,45 +353,6 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         this.sendStoppedFile();
     }
 
-    recvPrev() {
-        const music = this.playlist.prevMusic();
-        if(music != null) {
-            this.music = music;
-            this.music_index = (this.music_index >= 0 ? 0 : this.music_index);
-            this.music_count = this.music.length;
-            this.music_ticks = 0;
-            this.music_clock = this.music.framerate;
-            this.setChipMasterClock(this.music.frequency);
-            this.sendChanged();
-            this.sendTitle();
-            if(this.music_index >= 0) {
-                this.sendPlaying();
-            }
-        }
-        else {
-            this.sendUnchanged();
-        }
-    }
-
-    recvNext() {
-        const music = this.playlist.nextMusic();
-        if(music != null) {
-            this.music = music;
-            this.music_index = (this.music_index >= 0 ? 0 : this.music_index);
-            this.music_count = this.music.length;
-            this.music_ticks = 0;
-            this.music_clock = this.music.framerate;
-            this.setChipMasterClock(this.music.frequency);
-            this.sendChanged();
-            this.sendTitle();
-            if(this.music_index >= 0) {
-                this.sendPlaying();
-            }
-        }
-        else {
-            this.sendUnchanged();
-        }
-    }
 
     recvSeek(seek) {
         const music_index = this.music_index;
@@ -428,23 +363,6 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
     }
 
     /////////////////////////////////////////////////////////////////////
-    // Add GAM
-    recvSelectTrack(trackIndex) {
-        const music = this.playlist.setTrack(trackIndex);
-        if (music != null) {
-            this.music = music;
-            this.music_index = 0; // Inicia la canción desde el principio
-            this.music_count = this.music.length;
-            this.music_ticks = 0;
-            this.music_clock = this.music.framerate;
-            this.setChipMasterClock(this.music.frequency);
-            this.sendChanged();
-            this.sendTitle();
-            this.sendPlaying();
-        }
-    }
-
-     /////////////////////////////////////////////////////////////////////
     // Add GAM
     recvPlayExternal(extMusic) {
         let framesStruct = [];
@@ -487,18 +405,6 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         //this.sendPlaying();
         this.sendFilePlaying();
         
-    }
-
-    sendTitle() {
-        //this.sendMessage('Title', this.music.title);
-        // Add GAM
-        this.port.postMessage({
-            message_type: 'Title',
-            message_data: {
-                title: this.music.title || "Unknown",
-                track_index: this.playlist.cur_track // <-- Enviamos el índice actual de la playlist
-            }
-        });
     }
 
     sendPlaying() {
@@ -599,16 +505,6 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
     setChipMasterClock(master_clock) {
         this.chip_clock = this.chip.set_master_clock(master_clock);
         this.chip.reset();
-    }
-
-    /////////////////////////////////////////////////////////////////////////////
-    // Add GAM
-    sendTrackList() {
-        const list = this.playlist.getTrackNames();
-        this.port.postMessage({
-            message_type: 'TrackList',
-            message_data: list
-        });
     }
 
     hasReset() {

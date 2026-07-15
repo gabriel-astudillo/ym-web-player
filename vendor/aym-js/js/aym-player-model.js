@@ -38,7 +38,7 @@ export class AYM_PlayerModel {
 
     async powerOn() {
         await this.createContext();
-         await this.createWorklet();
+        await this.createWorklet();
         await this.createAnalyser();
         await this.createGain();
         await this.controller.onInputGain();
@@ -348,11 +348,6 @@ export class AYM_PlayerModel {
         this.sendMessage('SelectTrack', index);
     }
 
-    /////////////////////////////////////////////////////
-    // Add by GAM
-    sendRequestTrackList() {
-        this.sendMessage('RequestTrackList');
-    }
 
     /////////////////////////////////////////////////////
     // Add by GAM
