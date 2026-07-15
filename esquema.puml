@@ -1,97 +1,160 @@
-@startuml ay-emulator
-
-skinparam BackgroundColor #FFFFFF
+@startuml AYM_Player_Sequence
+autonumber
 skinparam BoxPadding 10
 skinparam ParticipantPadding 10
 
-box "Hilo Principal (Página Web / UI Thread)" #LightCyan
-    participant "Vista (DOM)\nindex.html" as HTML
-    participant "AYM_PlayerView\naym-player-view.js" as View << (V, #FF7700) Vista >>
-    participant "AYM_Player\naym-player.js" as Controller << (C, #00AA00) Controlador >>
-    participant "AYM_PlayerModel\naym-player-model.js" as Model << (M, #b4b4f6) Modelo >>
+actor Usuario
+box "Frontend (Hilo Principal - UI)" #FFFDEB
+    participant "AYM_PlayerView\n(aym-player-view.js)" as View
+    participant "AYM_Player\n(aym-player.js)" as Controller
+    participant "AYM_PlayerModel\n(aym-player-model.js)" as Model
+    participant "ChiptuneFile\n(ChiptuneFile.js)" as Chiptune
 end box
 
-box "Hilo de Audio (AudioWorklet Thread)" #LightGray
-    participant "AYM_PlayerProcessor\naym-player-processor.js" as Processor << (C, #00AA00) Motor de Audio >>
-    participant "AYM_Playlist\naym-playlist.js" as Playlist << (M, #b4b4f6) Datos >>
-    participant "AYM_Emulator\naym-emulator.js" as Emulator << (M, #b4b4f6) Emulación Hardware >>
+box "Audio (Hilo Web Audio)" #E8F5E9
+    participant "AudioContext" as AudioCtx
+    participant "AYM_PlayerProcessor\n(aym-player-processor.js)" as Processor
+    participant "AYM_Emulator\n(aym-emulator.js)" as Emulator
 end box
 
-== Inicialización y Carga Dinámica ==
-HTML -> View : window.onload
-activate View
-View -> Controller : onLoadWindow()
-Controller -> View : bind() (enlaza botones, canvas y select)
-deactivate View
+== 1. Inicialización y Encendido (Power On) ==
 
-HTML -> View : Clic en Botón Power
+Usuario -> View: Clic en botón "Power"
 activate View
-View -> Controller : onClickPower()
+View -> Controller: onClickPower()
 activate Controller
-Controller -> Model : powerOn()
+
+Controller -> Model: isNotPowered()
 activate Model
-Model -> Model : Inicializa AudioContext\ny carga AudioWorklet
-Model -> Processor : [postMessage] 'RequestTrackList'
+Model --> Controller: true
 deactivate Model
 
+Controller -> Model: powerOn()
+activate Model
+
+Model -> AudioCtx: new AudioContext()
+
+activate AudioCtx
+AudioCtx --> Model: Thread cargado
+deactivate AudioCtx
+
+Model -> AudioCtx: audioWorklet.addModule('aym-player-processor.js')
+activate AudioCtx
+AudioCtx --> Model: Módulo cargado
+deactivate AudioCtx
+
+Model -> Model: createWorklet()
+note over Model
+  Crea AudioWorkletNode
+  con 4 salidas discretas:
+  - Output 0: Mezcla Estéreo
+  - Output 1, 2, 3: Canal A, B, C puro
+end note
+
+Model -> Model: createAnalyser()
+note over Model
+  Crea waAnalyser y conectores
+  waAnalyserCh0, Ch1, Ch2
+  asociados a las salidas 1, 2, 3 del Worklet
+end note
+
+Model -> Model: createGain()
+Model -> Processor: new PlayerProcesor() (thread)
 activate Processor
-Processor -> Playlist : getTrackNames()
-activate Playlist
-Playlist --> Processor : Arreglo de nombres de canciones
-deactivate Playlist
-Processor -> Model : [postMessage] 'TrackList'
+Processor --> Model: Thread cargado
+deactivate Processor
+
+Model --> Controller: Contexto y nodos listos
+deactivate Model
+
+Controller -> View: powerOn()
+View -> View: bind()
+View -> Controller: startAnalyse()
+Controller -> View: renderFFT()
+note over View
+  Inicia bucles asíncronos en tiempo real:
+  - fftRender()
+  - fftRenderChannel0()
+  - fftRenderChannel1()
+  - fftRenderChannel2()
+end note
+
+Controller -> Model: sendRequestTrackList()
+activate Model
+Model -> Processor: postMessage('RequestTrackList')
+deactivate Model
+activate Processor
+Processor --> Model: postMessage('TrackList', trackNames)
 deactivate Processor
 
 activate Model
-Model -> Controller : recvTrackList(trackList)
-activate Controller
-Controller -> View : populateSelector(trackList)
-View -> HTML : Agrega <option> dinámicamente al <select>
-deactivate Controller
-deactivate Controller
-deactivate View
+Model -> Controller: recvMessage('TrackList')
+deactivate Model
+Controller -> View: populateSelector(trackList)
 
-== Flujo de Reproducción (Play / Selector) ==
-HTML -> View : Evento 'change' en <select> o clic en Play
+View --> Usuario: Interfaz encendida y lista de pistas cargada
+deactivate View
+deactivate Controller
+
+== 2. Reproducción de Archivo Externo (.ym) ==
+
+Usuario -> View: Selecciona archivo local o remoto (.ym)
 activate View
-View -> Controller : onClickPlay() o onSelectTrack()
+View -> Controller: onFileSelected(file) / onHyperlinkFileSelected(url)
 activate Controller
-Controller -> View : getSelectedTrackIndex()
-View --> Controller : trackIndex
-Controller -> Model : sendPlay(trackIndex)
+
+Controller -> Chiptune: new ChiptuneFile()
+Controller -> Chiptune: loadFile(file)
+activate Chiptune
+Chiptune --> Controller: Datos cargados y descomprimidos (LHA)
+deactivate Chiptune
+
+Controller -> Chiptune: getData()
+activate Chiptune
+Chiptune --> Controller: [songData, nFrames, interleaved]
+deactivate Chiptune
+
+Controller -> Controller: Formatea estructura (this.externalMusic)
+Controller -> Model: sendExternalTrack(musicData)
 activate Model
-Model -> Processor : [postMessage] 'Play' (con trackIndex)
+Model -> Processor: postMessage('PlayExternal', musicData)
 deactivate Model
 deactivate Controller
 deactivate View
 
 activate Processor
-Processor -> Playlist : setTrack(trackIndex)
-activate Playlist
-Playlist --> Processor : Objeto de la canción (music)
-deactivate Playlist
-Processor -> Processor : Reinicia indices\n(music_index = 0)
+Processor -> Emulator: set_type_ym()
+note over Processor
+  Configura variables internas:
+  - music_index = 0
+  - music_count = nFrames
+  - music_clock = 50Hz
+end note
 
-== Ciclo de Audio en Tiempo Real (Método process() a 44.1kHz) ==
-loop Cada bloque de muestras (AudioWorklet loop)
-    Processor -> Processor : clockMusic() (Temporizador ~50Hz)
-    alt Es momento de un nuevo Frame de música
-        Processor -> Processor : Lee frame de 14 bytes
-        loop Registro 0 al 13
-            Processor -> Emulator : set_register_index(reg)
-            Processor -> Emulator : set_register_value(val)
-        end
-    end
-    
-    Processor -> Emulator : clock() (Generación de onda analógica)
+== 3. Bucle de Audio y Renderizado Visual (Ciclo Continuo) ==
+
+loop Cada callback de process() (Web Audio API)
+    Processor -> Emulator: clock()
     activate Emulator
-    Emulator -> Emulator : Modula Tonos A, B, C y Ruido (LFSR)
-    Emulator -> Emulator : Aplica curvas DAC (AY_DAC / YM_DAC)
-    Emulator --> Processor : Muestras de audio (Float32)
+    Emulator --> Processor: muestras de canal_a, channel_b, channel_c
     deactivate Emulator
     
-    Processor -> HTML : Envía buffer a los altavoces (Web Audio API)
+    Processor -> Processor: mixStereo(outputs[0][0], outputs[0][1])
+    note over Processor
+       Vuelca channel_a, channel_b, channel_c
+       puros en outputs[1], outputs[2], outputs[3]
+    end note
 end
-deactivate Processor
 
-@endum
+loop Cada Frame de Animación (requestAnimationFrame)
+    View -> Model: waAnalyserCh0.getByteTimeDomainData(fftData)
+    activate Model
+    Model --> View: fftData (Dominio del tiempo)[cite: 1]
+    deactivate Model
+    
+    View -> View: Algoritmo de Estabilización (Trigger)
+    View -> View: Centrado de onda y amplificación (zoomY)
+    View -> View: Dibuja trazo continuo (lineTo) en canvasCh0
+end
+
+@enduml
