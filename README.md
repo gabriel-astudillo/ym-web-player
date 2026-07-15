@@ -5,7 +5,7 @@
 ## Install
 
 * Clone this repo.
-* Execute `tart-server.sh` script.
+* Execute `tart-server.sh` script in order to starts a python-based webserver.
 * Open your web browser and go to http://localhost:8000
 
 ## The hardware: AY-3-8910 and YM2149F
