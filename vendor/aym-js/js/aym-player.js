@@ -50,7 +50,6 @@ export class AYM_Player {
         this.model.sendStopFile();
     }
 
-
     async onClickPrev() {
         this.audioSource = 'internal';
         this.model.sendPrev();
@@ -324,6 +323,34 @@ export class AYM_Player {
             this.view.setStatusDisplay("Error al reproducir el enlace");
             console.error(error);
         }
+    }
+
+    async onUrlFileSelected(urlFile){
+        let parsedUrl;
+        let pathname;
+        let filename;
+
+        let urlOK = false;
+        try {
+            parsedUrl = new URL(urlFile);
+            urlOK = true;
+        }
+        catch (error) {
+            this.view.setStatusDisplay("URL not valid");
+            
+        }
+
+        if(urlOK){
+            pathname = parsedUrl.pathname;
+            filename = pathname.substring(pathname.lastIndexOf('/') + 1);
+            console.log("filename: " + filename);
+            this.onHyperlinkFileSelected(urlFile, filename);
+        }
+        
+        
+
+        
+
     }
 }
 

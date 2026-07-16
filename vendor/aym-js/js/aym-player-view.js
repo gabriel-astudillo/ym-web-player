@@ -24,16 +24,15 @@ import { AYM_Utils, $ } from './aym-utils.js';
 export class AYM_PlayerView {
     constructor(controller) {
         this.controller = controller;
-        this.aymDisplay = null;
-        this.aymPlay    = null;
-        this.aymFilePlay = null; // Add GAM
+        this.aymFilePlay = null; 
         this.aymStop    = null;
-        this.aymFileStop = null; // Add GAM
+        this.aymFileStop = null; 
+        this.aymUrlInput = null;
+        this.aymUrlPlay  = null;
 
-        this.aymNext    = null;
         this.aymSeek    = null;
         this.aymGain    = null;
-        this.aymChip0   = null;
+        //this.aymChip0   = null;
 
         this.aymMuteA   = null;
         this.aymMuteB   = null;
@@ -98,6 +97,8 @@ export class AYM_PlayerView {
         this.enableCanvas();
         this.setStatusDisplay('AYM Player is On')
         this.startAnalyse();
+        this.enableUrlInput();
+        this.enableUrlPlay();
     }
 
     async powerOff() {
@@ -119,7 +120,9 @@ export class AYM_PlayerView {
         this.disableSeek();
         this.disableFileStop(); // Add GAM
         this.disableFilePlay(); // Add GAM
-        this.setStatusDisplay('AYM Player is Off')
+        this.setStatusDisplay('AYM Player is Off');
+        this.disableUrlInput();
+        this.disableUrlPlay();
     }
 
     bind() {
@@ -127,6 +130,8 @@ export class AYM_PlayerView {
         this.bindFileStop(); // Add GAM
         this.bindStatusDisplay(); // Add GAM
         this.bindSeek();
+        this.bindUrlInput();
+        this.bindUrlPlay();
 
         this.bindMuteA();
         this.bindMuteB();
@@ -156,7 +161,9 @@ export class AYM_PlayerView {
         if(this.aymFilePlay == null) {
             this.aymFilePlay = $('#aymFilePlay');
             this.aymFilePlay.disabled = true;
-            this.aymFilePlay.addEventListener('click', async () => { await this.controller.onClickFilePlay(); });
+            this.aymFilePlay.addEventListener('click', async () => { 
+               await this.controller.onClickFilePlay();     
+            });
         }
     }
 
@@ -178,6 +185,29 @@ export class AYM_PlayerView {
             this.aymSeek.addEventListener('input', async () => { await this.controller.onInputSeek(); });
         }
     }
+
+    bindUrlInput() {
+        if(this.aymUrlInput == null) {
+            this.aymUrlInput = $('#aymUrlInput');
+            this.aymUrlInput.disabled = true;
+        }
+    }
+
+    bindUrlPlay() {
+        if(this.aymUrlPlay == null) {
+            this.aymUrlPlay = $('#aymUrlPlay');
+            this.aymUrlPlay.disabled = true;
+            this.aymUrlPlay.addEventListener('click', async () => { 
+                const urlValue = this.aymUrlInput.value.trim();
+                if (urlValue) {
+                    await this.controller.onUrlFileSelected(urlValue);                    
+                }  else {
+                    this.setStatusDisplay("Enter a valid URL.");
+                }       
+            });
+        }
+    }
+
 
     bindMuteA() {
         if(this.aymMuteA == null) {
@@ -365,6 +395,23 @@ export class AYM_PlayerView {
     disableFileStop() {
         AYM_Utils.disableElement(this.aymFileStop);
     }
+
+    enableUrlInput() {
+        AYM_Utils.enableElement(this.aymUrlInput);
+    }
+
+    disableUrlInput() {
+        AYM_Utils.disableElement(this.aymUrlInput);
+    }
+
+    enableUrlPlay() {
+        AYM_Utils.enableElement(this.aymUrlPlay);
+    }
+
+    disableUrlPlay() {
+        AYM_Utils.disableElement(this.aymUrlPlay);
+    }
+
 
     enableSeek() {
         AYM_Utils.enableElement(this.aymSeek);
@@ -578,18 +625,18 @@ export class AYM_PlayerView {
         if(this.aymPause != null) {
             this.aymPause.className = 'is-toggled';
         }
-        if(this.aymChip0 != null) {
+        /*if(this.aymChip0 != null) {
             this.aymChip0.className = 'is-toggled';
-        }
+        }*/
     }
 
     setResumed() {
         if(this.aymPause != null) {
             this.aymPause.className = '';
         }
-        if(this.aymChip0 != null) {
+        /*if(this.aymChip0 != null) {
             this.aymChip0.className = '';
-        }
+        }*/
     }
 
     setStatusDisplay(message) {
