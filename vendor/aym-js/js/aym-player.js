@@ -302,7 +302,7 @@ export class AYM_Player {
     // Add GAM
     async onHyperlinkFileSelected(fileUrl, songName) {
         try {
-            this.view.setStatusDisplay(`Descargando: ${songName}...`);
+            this.view.setStatusDisplay(`Cargando: ${songName}...`);
             
             // 1. Descargamos los bytes puros del archivo .ym desde el servidor de producción
             const response = await fetch(fileUrl);
@@ -319,7 +319,7 @@ export class AYM_Player {
             // 4. Invocamos de forma idéntica a tu pipeline original pasándole nuestro archivo ficticio
             await this.onFileSelected(mockFile);
             
-            this.view.setStatusDisplay(`Remoto: ${songName}`);
+            //this.view.setStatusDisplay(`Remoto: ${songName}`);
         } catch (error) {
             this.view.setStatusDisplay("Error al reproducir el enlace");
             console.error(error);
