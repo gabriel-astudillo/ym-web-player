@@ -34,6 +34,47 @@ export class AYM_Player {
     async onLoadWindow() {
         this.view.bind();
         //this.onClickPower();
+        //this.loadDynamicTracks();
+        this.loadFromStaticJson();
+        //this.view.bindHyperlinks();
+    }
+
+    async loadDynamicTracks() {
+        // Tu lista de canciones que puede venir de un fetch() al servidor
+        const playlistData = [
+            { name: "Axel Folley", url: "/ym-data/axel_folley.ym" },
+            { name: "Bach to the Future", url: "/ym-data/bach_the_future.ym" },
+            { name: "Robocop Theme", url: "/ym-data/robocop.ym" },
+            { name: "Enola Gay", url:"/ym-data/omd-enola_gay.ym"}
+        ];
+
+        // Le pedimos a la vista que los renderice y les asocie los listeners
+        this.view.populateTracksContainer(playlistData);
+    }
+
+    async loadFromStaticJson() {
+        try {
+            // Solicitamos el archivo JSON estático que vive en la misma carpeta de música[cite: 2]
+            const response = await fetch('/ym-data/tracks.json'); 
+            const files = await response.json();
+
+            const tracks = files.map(filename => {
+                const cleanName = filename
+                    .replace('.ym', '')
+                    //.replace(/_/g, ' ')
+                    //.replace(/-/g, ' - ')
+                    ;
+
+                return {
+                    name: cleanName,
+                    url: `/ym-data/${filename}` 
+                };
+            });
+
+            this.view.populateTracksContainer(tracks); 
+        } catch (error) {
+            console.error("No se pudo cargar el índice tracks.json", error);
+        }
     }
 
     async onClickFilePlay(){
@@ -221,20 +262,6 @@ export class AYM_Player {
         this.view.unSetOnlyC();
     }
 
-
-    /////////////////////////////////////////////////////////////////////
-    // Add GAM
-    async onSelectTrack(index) {
-        this.audioSource = 'internal';
-        this.model.sendSelectTrack(index);
-    }
-
-    /////////////////////////////////////////////////////////////////////
-    // Add GAM
-    async recvTrackList(trackList) {
-        this.view.populateSelector(trackList);
-    }
-
     // chiptuneFile debe estar disponible globalmente o impórtalo si lo modularizaste.
     /////////////////////////////////////////////////////////////////////
     // Add GAM
@@ -346,12 +373,8 @@ export class AYM_Player {
             console.log("filename: " + filename);
             this.onHyperlinkFileSelected(urlFile, filename);
         }
-        
-        
-
-        
-
     }
+
 }
 
 // ---------------------------------------------------------------------------

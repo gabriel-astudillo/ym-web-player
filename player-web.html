@@ -42,42 +42,68 @@
                 </fieldset>
 
                 
-
-                <div class="grid">                  
-                    <fieldset id="aymStorageControls">
-                        <legend>Load File</legend>                            
-                        <div class="grid">
-                            <div>
-                                <!--<label for="file-picker">Choose a Chiptune Track</label>-->
-                                <input type="file" id="file-picker" accept=".ym,.ym5,.ym6,.ay" />
+                <!-- Contenedor Principal de Dos Columnas -->
+                <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 15px;">
+                    <div style="flex: 0 0 auto; width: 200px;">            
+                        <fieldset id="aymStorageControls">
+                            <legend>Load File</legend>     
+                            <small>
+                            <div class="grid">
+                                    <input type="file" id="file-picker" accept=".ym,.ym5,.ym6,.ay" />
                             </div>
-                        </div>
 
 
-                        <div class="grid">
-                            <button id="aymFilePlay"><i class="fa-solid fa-play"></i><br>Play</button>
-                            <button id="aymFileStop"><i class="fa-solid fa-stop"></i><br>Stop</button>                            
-                        </div>
+                            <div class="grid">
+                                <button id="aymFilePlay"><i class="fa-solid fa-play"></i><br>Play</button> 
+                                <button id="aymFileStop"><i class="fa-solid fa-stop"></i><br>Stop</button>      
+                    
+                            </div>
+                            </small>                       
+                        </fieldset>
+                    </div>
 
-                    </fieldset>
+                    <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 auto; width: 330px;">
+                        <fieldset>
+                            <legend>Examples YM files</legend>
+                            <small>
+                            <div class="ym-tracks-container">
+                                <a href="/ym-data/axel_folley.ym" class="ym-link">Axel Folley</a><br>
+                                <a href="/ym-data/bach_the_future.ym" class="ym-link">Bach to the future</a><br>
+                                <a href="/ym-data/alphaville-big_japan.ym" class="ym-link">Big in Japan</a><br>
+                                <a href="/ym-data/omd-enola_gay.ym" class="ym-link">Enola Gay</a><br>
+                                <a href="/ym-data/like-a-virgin.ym" class="ym-link">Like a virgin</a><br>
+                                <a href="/ym-data/Guns-sweet_child_o_mine.ym" class="ym-link">Sweet chiled o mine</a><br>
+                                <a href="/ym-data/RockRoll.ym" class="ym-link">Rock & roll</a><br>
+                            </div>
+                            </small>
+                        </fieldset> 
+                    </div>
+                </div>    
 
-                   
-                    <fieldset>
-                        <legend>Examples YM files</legend>
-                        <small>
-                        <div class="ym-tracks-container">
-                            <a href="/ym-data/axel_folley.ym" class="ym-link">Axel Folley</a><br>
-                            <a href="/ym-data/bach_the_future.ym" class="ym-link">Bach to the future</a><br>
-                            <a href="/ym-data/alphaville-big_japan.ym" class="ym-link">Big in Japan</a><br>
-                            <a href="/ym-data/omd-enola_gay.ym" class="ym-link">Enola Gay</a><br>
-                            <a href="/ym-data/like-a-virgin.ym" class="ym-link">Like a virgin</a><br>
-                            <a href="/ym-data/Guns-sweet_child_o_mine.ym" class="ym-link">Sweet chiled o mine</a><br>
-                            <a href="/ym-data/RockRoll.ym" class="ym-link">Rock & roll</a><br>
-                        </div>
-                        </small>
-                    </fieldset> 
-                </div>
+                <!--
+                Código asociado en  aym-player-view.js (descomentar)
+                    asyn powerOn(){
+                    ...
+                    //this.enableUrlInput();
+                    //this.enableUrlPlay();
+                    ...
+                    }
 
+                    async powerOff() {
+                    ...
+                    //this.disableUrlInput();
+                    //this.disableUrlPlay();
+                    ...
+                    }
+
+                    bind() {
+                    ...
+                    //this.bindUrlInput();
+                    //this.bindUrlPlay();
+                    ...
+                    }
+                -->
+                <!--
                 <fieldset id="aymURLplayField">
                     <legend>Load from URL:</legend>
                     <div style="display: flex; gap: 8px;">
@@ -85,7 +111,7 @@
                         <button id="aymUrlPlay" style="margin-bottom: 0; width: auto; padding: 0 15px;"><i class="fa-solid fa-cloud-arrow-down"></i> Load</button>
                     </div>
                 </fieldset>
-
+                -->
                     
 
                 <fieldset id="aymPlaybackEstatus">

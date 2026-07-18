@@ -401,7 +401,8 @@ div.ym-tracks-container {
     margin: 0px;
     padding: 0px;
     background-color: rgb(244, 244, 244);
-    height: 100%; /* Define la altura máxima visible */
-    overflow-y: visible; /* Muestra el scroll vertical cuando sea necesario */
-    overflow-x: hidden; /* Oculta el scroll horizontal */
+    height: 137px;
+    width: 100%;
+    overflow-y: scroll ;
+    overflow-x: hidden; 
 }

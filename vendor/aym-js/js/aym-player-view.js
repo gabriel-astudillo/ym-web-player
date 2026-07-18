@@ -32,7 +32,6 @@ export class AYM_PlayerView {
 
         this.aymSeek    = null;
         this.aymGain    = null;
-        //this.aymChip0   = null;
 
         this.aymMuteA   = null;
         this.aymMuteB   = null;
@@ -97,8 +96,9 @@ export class AYM_PlayerView {
         this.enableCanvas();
         this.setStatusDisplay('AYM Player is On')
         this.startAnalyse();
-        this.enableUrlInput();
-        this.enableUrlPlay();
+
+        //this.enableUrlInput();
+        //this.enableUrlPlay();
     }
 
     async powerOff() {
@@ -121,8 +121,9 @@ export class AYM_PlayerView {
         this.disableFileStop(); // Add GAM
         this.disableFilePlay(); // Add GAM
         this.setStatusDisplay('AYM Player is Off');
-        this.disableUrlInput();
-        this.disableUrlPlay();
+        
+        //this.disableUrlInput();
+        //this.disableUrlPlay();
     }
 
     bind() {
@@ -130,8 +131,9 @@ export class AYM_PlayerView {
         this.bindFileStop(); // Add GAM
         this.bindStatusDisplay(); // Add GAM
         this.bindSeek();
-        this.bindUrlInput();
-        this.bindUrlPlay();
+
+        //this.bindUrlInput();
+        //this.bindUrlPlay();
 
         this.bindMuteA();
         this.bindMuteB();
@@ -147,7 +149,7 @@ export class AYM_PlayerView {
         this.bindAnalyse();
         this.bindCanvas();
         this.bindFilePicker(); // Add GAM
-        this.bindHyperlinks();
+        
     }
 
     bindStatusDisplay() {
@@ -678,19 +680,43 @@ export class AYM_PlayerView {
 
     //////////////////////////////////////////////////////////////////////
     // ADD GAM
-    populateSelector(trackList) {
-        if (this.aymSelector != null) {
-            // Limpiamos opciones previas estáticas
-            this.aymSelector.innerHTML = '';
-            
-            // Poblamos dinámicamente recorriendo el arreglo enviado desde el hilo de audio
-            trackList.forEach((trackName, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.text = trackName; // Muestra el nombre/autor de la canción
-                this.aymSelector.appendChild(option);
+    populateTracksContainer(tracks) {
+        // 1. Seleccionar el contenedor
+        const container = document.querySelector('.ym-tracks-container');
+        if (!container) return;
+
+        // 2. Limpiar cualquier contenido previo 
+        container.innerHTML = '';
+
+        // 3. Iterar sobre la lista de canciones
+        tracks.forEach(track => {
+            // Creamos el elemento de enlace <a>
+            const link = document.createElement('a');
+            link.href = track.url;
+            link.className = 'ym-link';
+            link.innerText = track.name;
+
+            const lineBreak = document.createElement('br');
+
+            link.addEventListener('click', async (event) => {
+                event.preventDefault(); // Detiene la navegación por defecto del navegador
+                
+                this.controller.audioSource = 'external';
+                await this.controller.onHyperlinkFileSelected(track.url, track.name);
             });
-        }
+
+            // 4. Asociar el evento directamente aquí
+            link.addEventListener('click', async (event) => {
+                event.preventDefault(); // Evitamos que descargue el archivo por defecto
+                
+                this.controller.audioSource = 'external'; // Cambiamos el origen del audio
+                await this.controller.onHyperlinkFileSelected(track.url, track.name); // Reproducir
+            });
+
+            // 5. Inser el enlace recién creado en el contenedor
+            container.appendChild(link);
+            container.appendChild(lineBreak)
+        });
     }
 
     renderFFT() {
