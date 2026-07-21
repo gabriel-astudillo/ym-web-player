@@ -33,6 +33,7 @@ export class AYM_Player {
 
     async onLoadWindow() {
         this.view.bind();
+        this.view.powerOff();
         //this.onClickPower();
         //this.loadDynamicTracks();
         this.loadFromStaticJson();

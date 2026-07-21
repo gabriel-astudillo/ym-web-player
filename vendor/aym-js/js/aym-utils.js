@@ -85,12 +85,14 @@ export class AYM_Utils {
     static enableElement(element) {
         if(element != null) {
             element.disabled = false;
+            element.classList.remove('opacity-30');
         }
     }
 
     static disableElement(element) {
         if(element != null) {
             element.disabled = true;
+            element.classList.add('opacity-30');
         }
     }
 
