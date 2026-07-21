@@ -553,79 +553,92 @@ export class AYM_PlayerView {
 
     setMutedA() {
         if(this.aymMuteA != null) {
-            this.aymMuteA.className = 'is-toggled';
+            //this.aymMuteA.className = 'is-toggled';
+            this.aymMuteA.classList.add('is-toggled');
         }
     }
 
     setUnmutedA() {
         if(this.aymMuteA != null) {
-            this.aymMuteA.className = '';
+            //this.aymMuteA.className = '';
+            this.aymMuteA.classList.remove('is-toggled');
         }
     }
 
     setMutedB() {
         if(this.aymMuteB != null) {
-            this.aymMuteB.className = 'is-toggled';
+            //this.aymMuteB.className = 'is-toggled';
+            this.aymMuteB.classList.add('is-toggled');
         }
     }
 
     setUnmutedB() {
         if(this.aymMuteB != null) {
-            this.aymMuteB.className = '';
+            //this.aymMuteB.className = '';
+            this.aymMuteB.classList.remove('is-toggled');
         }
     }
 
     setMutedC() {
         if(this.aymMuteC != null) {
-            this.aymMuteC.className = 'is-toggled';
+            //this.aymMuteC.className = 'is-toggled';
+            this.aymMuteC.classList.add('is-toggled');
         }
     }
 
     setUnmutedC() {
         if(this.aymMuteC != null) {
-            this.aymMuteC.className = '';
+            //this.aymMuteC.className = '';
+            this.aymMuteC.classList.remove('is-toggled');
         }
     }
 
     setOnlyA() {
         if(this.aymOnlyA != null) {
-            this.aymOnlyA.className = 'is-toggled';
+            //this.aymOnlyA.className = 'is-toggled';
+            this.aymOnlyA.classList.add('is-toggled');
         }
     }
 
     unSetOnlyA() {
         if(this.aymOnlyA != null) {
-            this.aymOnlyA.className = '';
+            //this.aymOnlyA.className = '';
+            this.aymOnlyA.classList.remove('is-toggled');
         }
     }
 
     setOnlyB() {
         if(this.aymOnlyB != null) {
-            this.aymOnlyB.className = 'is-toggled';
+            //this.aymOnlyB.className = 'is-toggled';
+            this.aymOnlyB.classList.add('is-toggled');
         }
     }
 
     unSetOnlyB() {
         if(this.aymOnlyB != null) {
-            this.aymOnlyB.className = '';
+            //this.aymOnlyB.className = '';
+            this.aymOnlyB.classList.remove('is-toggled');
         }
     }
 
     setOnlyC() {
         if(this.aymOnlyC != null) {
-            this.aymOnlyC.className = 'is-toggled';
+            //this.aymOnlyC.className = 'is-toggled';
+            this.aymOnlyC.classList.add('is-toggled');
         }
     }
 
     unSetOnlyC() {
         if(this.aymOnlyC != null) {
-            this.aymOnlyC.className = '';
+            //this.aymOnlyC.className = '';
+            this.aymOnlyC.classList.remove('is-toggled');
         }
     }
 
     setPaused() {
         if(this.aymPause != null) {
-            this.aymPause.className = 'is-toggled';
+            //this.aymPause.className = 'is-toggled';
+            this.aymOnlyC.classList.add('is-toggled');
         }
         /*if(this.aymChip0 != null) {
             this.aymChip0.className = 'is-toggled';
@@ -634,7 +647,8 @@ export class AYM_PlayerView {
 
     setResumed() {
         if(this.aymPause != null) {
-            this.aymPause.className = '';
+            //this.aymPause.className = '';
+            this.aymOnlyC.classList.remove('is-toggled');
         }
         /*if(this.aymChip0 != null) {
             this.aymChip0.className = '';

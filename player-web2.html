@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>YM-WEB Chiptune Music Player</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Font Awesome para Iconografía -->
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+    
+    <!-- Tailwind CSS (Framework Moderno Utility-First) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#0d0f17',
+                            card: '#161926',
+                            border: '#2a2f45',
+                            neon: '#00f0ff',
+                            purple: '#7000ff',
+                            pink: '#ff007f'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Estilos personalizados para mantener scrollbars y visualizadores nativos */
+        body {
+            background-color: #0d0f17;
+            color: #e2e8f0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* Estilo Cyberpunk para el contenedor dinámico de canciones */
+        .ym-tracks-container {
+            border: 1px solid #2a2f45;
+            border-radius: 0.5rem;
+            background-color: #0f111a;
+            height: 160px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 8px 12px;
+            box-sizing: border-box;
+        }
+
+        .ym-tracks-container a.ym-link {
+            display: block;
+            padding: 4px 6px;
+            margin-bottom: 2px;
+            color: #8b5cf6;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+        }
+
+        .ym-tracks-container a.ym-link:hover {
+            background-color: rgba(112, 0, 255, 0.2);
+            color: #00f0ff;
+            padding-left: 10px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f111a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2f45;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+
+        /* Range Input Stylized */
+        input[type=range] {
+            accent-color: #00f0ff;
+        }
+    </style>
+
+    <link rel="stylesheet" href="assets/css/index.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between p-4 md:p-6">
+
+    <main class="max-w-7xl mx-auto w-full space-y-6">
+        
+        <!-- Header Principal -->
+        <header class="flex items-center justify-between border-b border-cyber-border pb-4">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-microchip text-2xl text-cyber-neon animate-pulse"></i>
+                <h1 class="text-2xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyber-neon via-cyber-pink to-cyber-purple">
+                    YM-WEB <span class="text-xs font-mono text-gray-400 block sm:inline">Chiptune Sound Architecture</span>
+                </h1>
+            </div>
+            <div class="text-xs font-mono text-gray-400 bg-cyber-card px-3 py-1.5 rounded-full border border-cyber-border">
+                AY-3-8910 / YM2149 Emulator
+            </div>
+        </header>
+        
+        <!-- Grid Principal (Dos Columnas: Controles a la Izq, Osciloscopio a la Der) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Columna Izquierda: Panel de Control (4 Cols) -->
+            <div class="lg:col-span-5 space-y-5">
+
+                <!-- Modulo de Emulación -->
+                <section class="bg-cyber-card border border-cyber-border rounded-xl p-4 shadow-lg backdrop-blur-md">
+                    <h2 class="text-xs font-mono uppercase tracking-widest text-cyber-neon mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders"></i> Emulation Controls
+                    </h2>
+                    
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-3 gap-2">
+                            <button id="aymPower" class="py-2.5 px-2 bg-slate-800 hover:bg-red-900/40 hover:border-red-500 border border-cyber-border rounded-lg text-xs font-medium transition text-gray-200 flex flex-col items-center gap-1">
+                                <i class="fa-solid fa-power-off text-base text-red-400"></i> Power
+                            </button>
+                            <button id="aymReset" class="py-2.5 px-2 bg-slate-800 hover:bg-cyber-purple/40 hover:border-cyber-purple border border-cyber-border rounded-lg text-xs font-medium transition text-gray-200 flex flex-col items-center gap-1">
+                                <i class="fa-solid fa-rotate text-base text-yellow-400"></i> Reset
+                            </button>
+                            <button id="aymPause" class="py-2.5 px-2 bg-slate-800 hover:bg-cyber-purple/40 hover:border-cyber-purple border border-cyber-border rounded-lg text-xs font-medium transition text-gray-200 flex flex-col items-center gap-1">
+                                <i class="fa-solid fa-pause text-base text-cyber-neon"></i> Pause
+                            </button>
+                        </div>
+
+                        <!-- Mutes -->
+                        <div class="grid grid-cols-3 gap-2">
+                            <button id="aymMuteA" class="py-2 px-1 bg-slate-800/60 hover:bg-slate-700 border border-cyber-border rounded-md text-[11px] text-gray-300 flex flex-col items-center">
+                                <i class="fa-solid fa-volume-xmark mb-1 text-gray-400"></i> Mute A
+                            </button>
+                            <button id="aymMuteB" class="py-2 px-1 bg-slate-800/60 hover:bg-slate-700 border border-cyber-border rounded-md text-[11px] text-gray-300 flex flex-col items-center">
+                                <i class="fa-solid fa-volume-xmark mb-1 text-gray-400"></i> Mute B
+                            </button>
+                            <button id="aymMuteC" class="py-2 px-1 bg-slate-800/60 hover:bg-slate-700 border border-cyber-border rounded-md text-[11px] text-gray-300 flex flex-col items-center">
+                                <i class="fa-solid fa-volume-xmark mb-1 text-gray-400"></i> Mute C
+                            </button>
+                        </div>
+
+                        <!-- Solo Solo -->
+                        <div class="grid grid-cols-3 gap-2">
+                            <button id="aymOnlyA" class="py-2 px-1 bg-slate-800/60 hover:bg-cyber-pink/20 border border-cyber-border rounded-md text-[11px] text-gray-300 flex flex-col items-center">
+                                <i class="fa-solid fa-headphones mb-1 text-cyber-pink"></i> Only A
+                            </button>
+                            <button id="aymOnlyB" class="py-2 px-1 bg-slate-800/60 hover:bg-cyber-pink/20 border border-cyber-border rounded-md text-[11px] text-gray-300 flex flex-col items-center">
+                                <i class="fa-solid fa-headphones mb-1 text-cyber-pink"></i> Only B
+                            </button>
+                            <button id="aymOnlyC" class="py-2 px-1 bg-slate-800/60 hover:bg-cyber-pink/20 border border-cyber-border rounded-md text-[11px] text-gray-300 flex flex-col items-center">
+                                <i class="fa-solid fa-headphones mb-1 text-cyber-pink"></i> Only C
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Carga de Archivos & Playlist -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                    
+                    <!-- File picker -->
+                    <div class="sm:col-span-5 bg-cyber-card border border-cyber-border rounded-xl p-3 flex flex-col justify-between">
+                        <span class="text-xs font-mono text-cyber-neon uppercase mb-2 flex items-center gap-1">
+                            <i class="fa-solid fa-folder-open"></i> Load File
+                        </span>
+                        
+                        <input type="file" id="file-picker" accept=".ym,.ym5,.ym6,.ay" class="text-xs text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:bg-slate-700 file:text-gray-200 hover:file:bg-slate-600 mb-3 w-full cursor-pointer"/>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="aymFilePlay" class="py-1.5 bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 rounded text-xs text-emerald-300 flex flex-col items-center">
+                                <i class="fa-solid fa-play mb-1"></i> Play
+                            </button>
+                            <button id="aymFileStop" class="py-1.5 bg-rose-600/30 hover:bg-rose-600/50 border border-rose-500/50 rounded text-xs text-rose-300 flex flex-col items-center">
+                                <i class="fa-solid fa-stop mb-1"></i> Stop
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Playlist Dinámica -->
+                    <div class="sm:col-span-7 bg-cyber-card border border-cyber-border rounded-xl p-3">
+                        <span class="text-xs font-mono text-cyber-neon uppercase mb-2 block">
+                            <i class="fa-solid fa-list-music"></i> YM Explorer
+                        </span>
+                        <div class="ym-tracks-container">
+                            <!-- Inyección Dinámica vía JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estado de Reproducción -->
+                <section id="aymPlaybackEstatus" class="bg-cyber-card border border-cyber-border rounded-xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono text-gray-400">STATUS</span>
+                        <p id="aymStatusDisplay" class="text-xs font-mono text-cyber-neon font-bold truncate max-w-[250px]">
+                            AYM Player is Off
+                        </p>
+                    </div>
+                    <input id="aymSeek" type="range" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                </section>
+
+            </div>
+
+            <!-- Columna Derecha: Análisis de Espectro y Canales (7 Cols) -->
+            <div class="lg:col-span-7">
+                <section id="aymAnalyserControls" class="bg-cyber-card border border-cyber-border rounded-xl p-5 space-y-5">
+                    
+                    <div class="flex items-center justify-between border-b border-cyber-border pb-3">
+                        <h2 class="text-xs font-mono uppercase tracking-widest text-cyber-neon flex items-center gap-2">
+                            <i class="fa-solid fa-chart-simple"></i> Real-time Spectrum Analysis
+                        </h2>
+                        <label for="aymAnalyse" class="flex items-center gap-2 text-xs font-mono cursor-pointer text-gray-300">
+                            <input id="aymAnalyse" type="checkbox" role="switch" class="w-4 h-4 accent-cyber-neon rounded cursor-pointer"> Enable Analysis
+                        </label>
+                    </div>
+
+                    <!-- Visualizador FFT (Frecuencia) -->
+                    <div class="flex flex-col md:flex-row gap-4 items-center">
+                        <div class="bg-black/60 p-2 rounded-lg border border-cyber-border">
+                            <canvas id="aymCanvas" width="440" height="225" class="w-full max-w-[440px] h-auto block rounded"></canvas>
+                        </div>
+                        <div class="flex flex-col gap-2 w-full md:w-auto">
+                            <div>
+                                <span class="text-[10px] font-mono text-cyber-neon font-bold uppercase block mb-1">Chan A</span>
+                                <canvas id="aymCanvasCh0" width="200" height="55" class="bg-black/60 rounded border border-cyber-border w-full md:w-[200px]"></canvas>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-mono text-cyber-pink font-bold uppercase block mb-1">Chan B</span>
+                                <canvas id="aymCanvasCh1" width="200" height="55" class="bg-black/60 rounded border border-cyber-border w-full md:w-[200px]"></canvas>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-mono text-cyber-purple font-bold uppercase block mb-1">Chan C</span>
+                                <canvas id="aymCanvasCh2" width="200" height="55" class="bg-black/60 rounded border border-cyber-border w-full md:w-[200px]"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visualizador Dominio del Tiempo (Osciloscopio) -->
+                    <div class="flex flex-col md:flex-row gap-4 items-center pt-2 border-t border-cyber-border/50">
+                        <div class="bg-black/60 p-2 rounded-lg border border-cyber-border">
+                            <canvas id="aymTimeCanvas" width="440" height="225" class="w-full max-w-[440px] h-auto block rounded"></canvas>
+                        </div>
+                        <div class="flex flex-col gap-2 w-full md:w-auto">
+                            <div>
+                                <span class="text-[10px] font-mono text-cyber-neon font-bold uppercase block mb-1">Wave A</span>
+                                <canvas id="aymTimeCanvasCh0" width="200" height="55" class="bg-black/60 rounded border border-cyber-border w-full md:w-[200px]"></canvas>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-mono text-cyber-pink font-bold uppercase block mb-1">Wave B</span>
+                                <canvas id="aymTimeCanvasCh1" width="200" height="55" class="bg-black/60 rounded border border-cyber-border w-full md:w-[200px]"></canvas>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-mono text-cyber-purple font-bold uppercase block mb-1">Wave C</span>
+                                <canvas id="aymTimeCanvasCh2" width="200" height="55" class="bg-black/60 rounded border border-cyber-border w-full md:w-[200px]"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-7xl mx-auto w-full mt-8 pt-4 border-t border-cyber-border/50 text-center text-xs text-gray-500 font-mono">
+        <p>
+            <b>YM-WEB Chiptune Music Player</b> • Developed by Gabriel Astudillo Muñoz 
+            <a href="https://github.com/gabriel-astudillo/ym-web-player" target="_blank" class="text-cyber-neon hover:underline">GitHub</a>
+        </p>
+        <p class="mt-1 text-[11px] text-gray-600">
+            Based on AYM-JS by Olivier Poncet
+        </p>
+    </footer>
+
+    <!-- Scripts de la aplicación (Manteniendo tus módulos exactos) -->
+    <script>
+        const localModules = {};
+        window.require = function(modulePath) {
+            if (modulePath.includes('bit-eater')) return localModules['bit-eater'];
+            if (modulePath.includes('tree')) return localModules['tree'];
+            if (modulePath.includes('new_decoder')) return localModules['new_decoder'];
+            if (modulePath.includes('null_decoder')) return localModules['null_decoder'];
+            if (modulePath.includes('decoder')) return localModules['decoder'];
+            if (modulePath.includes('archive')) return localModules['archive'];
+            return null;
+        };
+
+        async function loadCommonJsModule(name, url) {
+            const response = await fetch(url);
+            const code = await response.text();
+            const module = { exports: {} };
+            const exports = module.exports;
+            const runModule = new Function('module', 'exports', 'require', code);
+            runModule(module, exports, window.require);
+            localModules[name] = module.exports;
+        }
+
+        (async () => {
+            try {
+                await loadCommonJsModule('bit-eater', './vendor/libLHA/bit-eater.js');
+                await loadCommonJsModule('tree', './vendor/libLHA/tree.js');
+                await loadCommonJsModule('null_decoder', './vendor/libLHA/null_decoder.js');
+                await loadCommonJsModule('new_decoder', './vendor/libLHA/new_decoder.js');
+                await loadCommonJsModule('decoder', './vendor/libLHA/decoder.js');
+                await loadCommonJsModule('archive', './vendor/libLHA/archive.js');
+                await loadCommonJsModule('index', './vendor/libLHA/index.js');
+                
+                window.JSLha = localModules['index'];
+            } catch (e) {
+                console.error("Error cargando LHA:", e);
+            }
+        })();
+    </script>
+    
+    <script type="module" src="assets/js/index.js"></script>
+    <script type="module" src="assets/js/player.js"></script>
+    <script type="module" src="ChiptuneFile.js"></script>
+
+</body>
+</html>
