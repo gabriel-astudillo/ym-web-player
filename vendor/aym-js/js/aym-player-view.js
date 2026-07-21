@@ -710,7 +710,11 @@ export class AYM_PlayerView {
             link.className = 'ym-link';
             link.innerText = track.name;
 
-            const lineBreak = document.createElement('br');
+            //const lineBreak = document.createElement('br');
+            // py-0.5 = padding vertical ultra ajustado (2px arriba y abajo)
+            // my-0 = margen cero
+            // leading-tight = interlineado compacto
+            //link.classList.add('pt-0', 'pb-0', 'mt-0', 'mb-0', 'text-xs');
 
             link.addEventListener('click', async (event) => {
                 event.preventDefault(); // Detiene la navegación por defecto del navegador
@@ -729,7 +733,7 @@ export class AYM_PlayerView {
 
             // 5. Inser el enlace recién creado en el contenedor
             container.appendChild(link);
-            container.appendChild(lineBreak)
+            //container.appendChild(lineBreak)
         });
     }
 
