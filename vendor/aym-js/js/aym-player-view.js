@@ -762,9 +762,9 @@ export class AYM_PlayerView {
 
 
 
-        const backcolor = '#e0e0e0';
-        const linecolor = '#ff4444';
-        const barcolor  = '#ff5555';
+        const backcolor = '#111524'; //'#e0e0e0';
+        const linecolor = '#747b7c';
+        const barcolor  = '#c7d5d7';
 
         const waveLineWidth = 1;
 

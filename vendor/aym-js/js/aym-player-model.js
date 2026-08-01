@@ -63,10 +63,12 @@ export class AYM_PlayerModel {
         if(this.waContext != null) {
             await this.waContext.close();
             this.waContext = null;
-        }
+        } 
     }
 
     async createAnalyser() {
+        let fftSize = 64;
+
         if(this.waAnalyser == null) {
             this.waAnalyser = this.waContext.createAnalyser();
             this.waAnalyser.connect(this.waContext.destination);
@@ -76,7 +78,7 @@ export class AYM_PlayerModel {
 
             // 3. Crear el analizador exclusivo para el Canal 0
             this.waAnalyserCh0 = this.waContext.createAnalyser();
-            //this.waAnalyserCh0.fftSize = 64; // Ajusta el tamaño de bandas según tus necesidades
+            this.waAnalyserCh0.fftSize = fftSize; // Ajusta el tamaño de bandas según tus necesidades
             this.waWorklet.connect(this.waAnalyserCh0, 1, 0); // <--- Salida 1 (Canal A puro)
 
             // 4. Conectar la salida 0 del splitter (L / Izquierda) al analizador del Canal 0
@@ -84,13 +86,13 @@ export class AYM_PlayerModel {
 
             // Crear el analizador para el Canal 1 (Aproximación usando la mezcla L)
             this.waAnalyserCh1 = this.waContext.createAnalyser();
-            //this.waAnalyserCh1.fftSize = 64;
+            this.waAnalyserCh1.fftSize = fftSize;
             //this.waSplitter.connect(this.waAnalyserCh1, 0, 0); 
             this.waWorklet.connect(this.waAnalyserCh1, 2, 0); // <--- Salida 2 (Canal B puro)
 
             // Crear el analizador exclusivo para el Canal 2 (Derecha)
             this.waAnalyserCh2 = this.waContext.createAnalyser();
-            //this.waAnalyserCh2.fftSize = 64;
+            this.waAnalyserCh2.fftSize = fftSize;
             //this.waSplitter.connect(this.waAnalyserCh2, 1, 0); // Conecta salida R
             this.waWorklet.connect(this.waAnalyserCh2, 3, 0); // <--- Salida 3 (Canal C puro)
 

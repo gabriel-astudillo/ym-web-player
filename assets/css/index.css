@@ -332,6 +332,7 @@ button.is-toggled {
     border: 1px solid var(--form-element-border-color);
     border-radius: var(--border-radius);
     width: 100%;
+
 }
 
 #aymTimeCanvas {
