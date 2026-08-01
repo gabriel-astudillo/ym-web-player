@@ -20,9 +20,8 @@
         <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 0px;">
             
             <!-- Columna Izquierda: Canvas General -->
-            <div style="flex: 0 0 auto;">
-
-                <fieldset id="aymEmulationControls" width="300px">
+            <div style="flex: 0 0 auto; width: 300px;">
+                <fieldset id="aymEmulationControls">
                     <legend>Emulation</legend>
                     <div class="grid">
                         <button id="aymPower"><i class="fa-solid fa-power-off"></i><br>Power</button>
@@ -39,10 +38,21 @@
                         <button id="aymOnlyB"><i class="fa-solid fa-headphones"></i><br>Only B</button>
                         <button id="aymOnlyC"><i class="fa-solid fa-headphones"></i><br>Only C</button>
                     </div>
+                </fieldset>                    
+
+                <fieldset id="aymPlaybackEstatus">
+                    <legend>Playback status</legend>
+                    <div class="grid">
+                            <p id="aymStatusDisplay">AYM Player is Off</p>
+                        </div>
+                    <div class="grid">
+                        <input id="aymSeek" type="range">
+                    </div>
                 </fieldset>
-
-                
-
+        
+            </div>
+            
+            <div style="flex: 0 0 auto; width:300px;">
                 <div class="grid">                  
                     <fieldset id="aymStorageControls">
                         <legend>Load File</legend>                            
@@ -60,24 +70,8 @@
                         </div>
 
                     </fieldset>
-
-                    <!--<fieldset id="aymPlaybackControls">
-                        <legend>Internal songs</legend>
-
-                        
-                        <div class="grid">
-                            <div>
-                                <select id="aymSelector">
-                                    <option value="">Encienda el reproductor...</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="grid">
-                            <button id="aymPlay"><i class="fa-solid fa-play"></i><br>Play</button>
-                            <button id="aymStop"><i class="fa-solid fa-stop"></i><br>Stop</button>
-                        </div>
-                    </fieldset>-->
+                </div> 
+                <div class="grid">     
                     <fieldset>
                         <legend>Examples YM files</legend>
                         <small>
@@ -93,23 +87,11 @@
                         </small>
                     </fieldset> 
                 </div>
-
-                    
-
-                <fieldset id="aymPlaybackEstatus">
-                    <legend>Playback status</legend>
-                    <div class="grid">
-                            <p id="aymStatusDisplay">AYM Player is Off</p>
-                        </div>
-                    <div class="grid">
-                        <input id="aymSeek" type="range">
-                    </div>
-                </fieldset>
-        
-
-                
             </div>
+            
+        </div>
 
+        <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 0px;">
             <div style="flex: 0 0 auto;">
                 <fieldset id="aymAnalyserControls">
                     <legend>Spectrum analysis</legend>
@@ -128,7 +110,7 @@
                         
                         <!-- Columna Izquierda: Canvas General -->
                         <div style="flex: 0 0 auto;">
-                            <canvas id="aymCanvas" width="440" height="225" style="border: 1px solid #ccc; display: block;"></canvas>
+                            <canvas id="aymCanvas" width="400" height="225" style="border: 1px solid #ccc; display: block;"></canvas>
                         </div>
                         
 
@@ -138,19 +120,19 @@
                             <!-- Bloque Canal 0 -->
                             <div style="display: flex; flex-direction: column; gap: 2px;">
                                 <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel A</span>
-                                <canvas id="aymCanvasCh0" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                                <canvas id="aymCanvasCh0" width="160" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
                             </div>
 
                             <!-- Bloque Canal 1 -->
                             <div style="display: flex; flex-direction: column; gap: 2px;">
                                 <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel B</span>
-                                <canvas id="aymCanvasCh1" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                                <canvas id="aymCanvasCh1" width="160" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
                             </div>
 
                             <!-- Bloque Canal 2 -->
                             <div style="display: flex; flex-direction: column; gap: 2px;">
                                 <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel C</span>
-                                <canvas id="aymCanvasCh2" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                                <canvas id="aymCanvasCh2" width="160" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
                             </div>
 
                         </div>
@@ -161,7 +143,7 @@
                         
                         <!-- Columna Izquierda: Canvas General -->
                         <div style="flex: 0 0 auto;">
-                            <canvas id="aymTimeCanvas" width="440" height="225" style="border: 1px solid #ccc; display: block;"></canvas>
+                            <canvas id="aymTimeCanvas" width="400" height="225" style="border: 1px solid #ccc; display: block;"></canvas>
                         </div>
                         
 
@@ -171,19 +153,19 @@
                             <!-- Bloque Canal 0 -->
                             <div style="display: flex; flex-direction: column; gap: 2px;">
                                 <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel A</span>
-                                <canvas id="aymTimeCanvasCh0" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                                <canvas id="aymTimeCanvasCh0" width="160" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
                             </div>
 
                             <!-- Bloque Canal 1 -->
                             <div style="display: flex; flex-direction: column; gap: 2px;">
                                 <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel B</span>
-                                <canvas id="aymTimeCanvasCh1" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                                <canvas id="aymTimeCanvasCh1" width="160" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
                             </div>
 
                             <!-- Bloque Canal 2 -->
                             <div style="display: flex; flex-direction: column; gap: 2px;">
                                 <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; color: #555;">Channel C</span>
-                                <canvas id="aymTimeCanvasCh2" width="200" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
+                                <canvas id="aymTimeCanvasCh2" width="160" height="55" style="border: 1px solid #ccc; display: block;"></canvas>
                             </div>
 
                         </div>
