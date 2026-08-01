@@ -33,24 +33,28 @@ export class AYM_Player {
 
     async onLoadWindow() {
         this.view.bind();
-        this.view.powerOff();
         //this.onClickPower();
-        //this.loadDynamicTracks();
         this.loadFromStaticJson();
-        //this.view.bindHyperlinks();
     }
 
-    async loadDynamicTracks() {
-        // Tu lista de canciones que puede venir de un fetch() al servidor
-        const playlistData = [
-            { name: "Axel Folley", url: "/ym-data/axel_folley.ym" },
-            { name: "Bach to the Future", url: "/ym-data/bach_the_future.ym" },
-            { name: "Robocop Theme", url: "/ym-data/robocop.ym" },
-            { name: "Enola Gay", url:"/ym-data/omd-enola_gay.ym"}
-        ];
+    async onClickPlay() {
+        
+        //this.model.sendPlay();
+        // Obtener el índice seleccionado en el componente <select>
+        const trackIndex = this.view.getSelectedTrackIndex();
+        // Se envía el comando Play incluyendo el índice de la canción
+        this.model.sendPlay(trackIndex);
 
-        // Le pedimos a la vista que los renderice y les asocie los listeners
-        this.view.populateTracksContainer(playlistData);
+        /*
+        if (this.audioSource === 'external') {
+            // Si hay un archivo externo activo, mandamos 'Play' puro (null) para reanudarlo
+            this.model.sendPlay(null);
+        } else {
+            // Si estamos en modo interno, mantenemos la sincronización con el <select>
+            const trackIndex = this.view.getSelectedTrackIndex();
+            this.model.sendPlay(trackIndex);
+        }
+        */
     }
 
     async loadFromStaticJson() {
@@ -78,6 +82,7 @@ export class AYM_Player {
         }
     }
 
+
     async onClickFilePlay(){
         if(this.externalMusic != null){
             this.model.sendExternalTrack(this.externalMusic);
@@ -91,6 +96,7 @@ export class AYM_Player {
     async onClickFileStop(){
         this.model.sendStopFile();
     }
+
 
     async onClickPrev() {
         this.audioSource = 'internal';
@@ -144,6 +150,8 @@ export class AYM_Player {
         if(this.model.isNotPowered()) {
             await this.model.powerOn();
             await this.view.powerOn();
+            // Solicitamos la lista de canciones dinámicamente al iniciar
+            this.model.sendRequestTrackList();
         }
         else {
             await this.view.powerOff();
@@ -176,14 +184,19 @@ export class AYM_Player {
         this.view.setSelectedTrackIndex(data.track_index); // <-- Sincroniza el select de la UI
     }
 
-    async recvFileData(data) {
+    async recvTitleFile(data) {
         // Add GAM
-        let status = data.title + "\n" + data.duration + "s";
-        this.view.setStatusDisplay(status);
+        // data ahora contiene { title, track_index }
+        //this.view.setFileDisplay(data.title);
+        this.view.setStatusDisplay(data.title);
     }
 
     async recvSeek(seek) {
         this.view.setSeekValue(seek);
+    }
+
+    async recvPlaying() {
+        this.view.setPlaying();
     }
 
     async recvPlayingFile(){
@@ -263,6 +276,20 @@ export class AYM_Player {
         this.view.unSetOnlyC();
     }
 
+
+    /////////////////////////////////////////////////////////////////////
+    // Add GAM
+    async onSelectTrack(index) {
+        this.audioSource = 'internal';
+        this.model.sendSelectTrack(index);
+    }
+
+    /////////////////////////////////////////////////////////////////////
+    // Add GAM
+    async recvTrackList(trackList) {
+        this.view.populateSelector(trackList);
+    }
+
     // chiptuneFile debe estar disponible globalmente o impórtalo si lo modularizaste.
     /////////////////////////////////////////////////////////////////////
     // Add GAM
@@ -297,7 +324,6 @@ export class AYM_Player {
                         title: file.name.replace('.ym', ''),
                         type: 'YM',
                         frames: nFrames,
-                        duration: nFrames * 0.02,
                         interleaved: interleaved[0] === 1,
                         // Pasamos la estructura plana de datos binarios decodificados
                         songData: songData 
@@ -329,7 +355,7 @@ export class AYM_Player {
     // Add GAM
     async onHyperlinkFileSelected(fileUrl, songName) {
         try {
-            this.view.setStatusDisplay(`Cargando: ${songName}...`);
+            this.view.setFileDisplay(`Descargando: ${songName}...`);
             
             // 1. Descargamos los bytes puros del archivo .ym desde el servidor de producción
             const response = await fetch(fileUrl);
@@ -346,36 +372,12 @@ export class AYM_Player {
             // 4. Invocamos de forma idéntica a tu pipeline original pasándole nuestro archivo ficticio
             await this.onFileSelected(mockFile);
             
-            //this.view.setStatusDisplay(`Remoto: ${songName}`);
+            this.view.setFileDisplay(`Remoto: ${songName}`);
         } catch (error) {
-            this.view.setStatusDisplay("Error al reproducir el enlace");
+            this.view.setFileDisplay("Error al reproducir el enlace");
             console.error(error);
         }
     }
-
-    async onUrlFileSelected(urlFile){
-        let parsedUrl;
-        let pathname;
-        let filename;
-
-        let urlOK = false;
-        try {
-            parsedUrl = new URL(urlFile);
-            urlOK = true;
-        }
-        catch (error) {
-            this.view.setStatusDisplay("URL not valid");
-            
-        }
-
-        if(urlOK){
-            pathname = parsedUrl.pathname;
-            filename = pathname.substring(pathname.lastIndexOf('/') + 1);
-            console.log("filename: " + filename);
-            this.onHyperlinkFileSelected(urlFile, filename);
-        }
-    }
-
 }
 
 // ---------------------------------------------------------------------------

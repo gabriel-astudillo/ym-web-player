@@ -332,7 +332,6 @@ button.is-toggled {
     border: 1px solid var(--form-element-border-color);
     border-radius: var(--border-radius);
     width: 100%;
-
 }
 
 #aymTimeCanvas {
@@ -395,14 +394,50 @@ button.is-toggled {
     font-size: 0.85rem;
 }
 
-div.ym-tracks-container {
+.ym-tracks-container {
     border: 1px solid var(--form-element-border-color);
     border-radius:#000;
     border-radius: 5px;
     margin: 0px;
     padding: 0px;
     background-color: rgb(244, 244, 244);
-    height: 135px;
-    overflow-y: scroll ;
-    overflow-x: hidden; 
+    height: 160px; /* Define la altura máxima visible */
+    overflow-y: auto; /* Muestra el scroll vertical cuando sea necesario */
+    overflow-x: hidden; /* Oculta el scroll horizontal */
+    padding: 8px 2px;
+    box-sizing: border-box;
+}
+
+.ym-tracks-container a.ym-link {
+    display: block;
+    background-color: rgb(244, 244, 244);
+    padding: 0px 6px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    color: #550bea;
+    text-decoration: none;
+    border-radius: 0px;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    font-style: normal;
+    font-weight: normal;
+}
+ .ym-tracks-container a.ym-link:hover {
+    background-color: rgba(78, 78, 79, 0.2);
+    color: #8b5cf6;
+    padding-left: 10px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #00f0ff;
+}
+::-webkit-scrollbar-thumb {
+    background: #550bea;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #071e20;
 }

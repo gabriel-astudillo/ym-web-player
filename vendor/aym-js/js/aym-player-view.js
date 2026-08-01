@@ -24,14 +24,16 @@ import { AYM_Utils, $ } from './aym-utils.js';
 export class AYM_PlayerView {
     constructor(controller) {
         this.controller = controller;
-        this.aymFilePlay = null; 
+        this.aymDisplay = null;
+        this.aymPlay    = null;
+        this.aymFilePlay = null; // Add GAM
         this.aymStop    = null;
-        this.aymFileStop = null; 
-        this.aymUrlInput = null;
-        this.aymUrlPlay  = null;
-
+        this.aymFileStop = null; // Add GAM
+        //this.aymPrev    = null;
+        this.aymNext    = null;
         this.aymSeek    = null;
         this.aymGain    = null;
+        this.aymChip0   = null;
 
         this.aymMuteA   = null;
         this.aymMuteB   = null;
@@ -77,9 +79,15 @@ export class AYM_PlayerView {
     }
 
     async powerOn() {
+        //this.enablePlay();
         this.enableFilePlay(); // Add GAM
+        //this.disableStop();
         this.disableFileStop(); // Add GAM
+        //this.enablePrev();
+        //this.enableNext();
         this.enableSeek();
+        //this.enableGain();
+        //this.enableChip0();
 
         this.enableMuteA();
         this.enableMuteB();
@@ -94,11 +102,10 @@ export class AYM_PlayerView {
         this.enablePause();
         this.enableAnalyse();
         this.enableCanvas();
+        this.setDisplay('AYM·Player is On');
+        this.setFileDisplay('AYM Player is On');
         this.setStatusDisplay('AYM Player is On')
         this.startAnalyse();
-
-        //this.enableUrlInput();
-        //this.enableUrlPlay();
     }
 
     async powerOff() {
@@ -117,23 +124,33 @@ export class AYM_PlayerView {
 
         //this.disablePower();
 
+        //this.disableChip0();
+        //this.disableGain();
         this.disableSeek();
+        //this.disableNext();
+        //this.disablePrev();
+        //this.disableStop();
+        //this.disablePlay();
         this.disableFileStop(); // Add GAM
         this.disableFilePlay(); // Add GAM
-        this.setStatusDisplay('AYM Player is Off');
-        
-        //this.disableUrlInput();
-        //this.disableUrlPlay();
+        //this.setDisplay('AYM·Player is Off');
+        //this.setFileDisplay('AYM Player is Off');
+        this.setStatusDisplay('AYM Player is Off')
     }
 
     bind() {
+        //this.bindDisplay();
+        //this.bindFileDisplay(); // Add GAM
+        //this.bindPlay();
         this.bindFilePlay(); // Add GAM
+        //this.bindStop();
         this.bindFileStop(); // Add GAM
         this.bindStatusDisplay(); // Add GAM
+        //this.bindPrev();
+        //this.bindNext();
         this.bindSeek();
-
-        //this.bindUrlInput();
-        //this.bindUrlPlay();
+        //this.bindGain();
+        //this.bindChip0();
 
         this.bindMuteA();
         this.bindMuteB();
@@ -148,8 +165,21 @@ export class AYM_PlayerView {
         this.bindPause();
         this.bindAnalyse();
         this.bindCanvas();
+        //this.bindSelector();   // Add GAM
         this.bindFilePicker(); // Add GAM
-        
+        this.bindHyperlinks();
+    }
+
+    bindDisplay() {
+        if(this.aymDisplay == null) {
+            this.aymDisplay = $('#aymDisplay');
+        }
+    }
+
+    bindFileDisplay() {
+        if(this.aymFileDisplay == null) {
+            this.aymFileDisplay = $('#aymFileDisplay');
+        }
     }
 
     bindStatusDisplay() {
@@ -159,13 +189,27 @@ export class AYM_PlayerView {
     }
 
 
+    bindPlay() {
+        if(this.aymPlay == null) {
+            this.aymPlay = $('#aymPlay');
+            this.aymPlay.disabled = true;
+            this.aymPlay.addEventListener('click', async () => { await this.controller.onClickPlay(); });
+        }
+    }
+
     bindFilePlay() {
         if(this.aymFilePlay == null) {
             this.aymFilePlay = $('#aymFilePlay');
             this.aymFilePlay.disabled = true;
-            this.aymFilePlay.addEventListener('click', async () => { 
-               await this.controller.onClickFilePlay();     
-            });
+            this.aymFilePlay.addEventListener('click', async () => { await this.controller.onClickFilePlay(); });
+        }
+    }
+
+    bindStop() {
+        if(this.aymStop == null) {
+            this.aymStop = $('#aymStop');
+            this.aymStop.disabled = true;
+            this.aymStop.addEventListener('click', async () => { await this.controller.onClickStop(); });
         }
     }
 
@@ -176,6 +220,22 @@ export class AYM_PlayerView {
             this.aymFileStop.addEventListener('click', async () => { await this.controller.onClickFileStop(); });
         }
     }
+
+    /*bindPrev() {
+        if(this.aymPrev == null) {
+            this.aymPrev = $('#aymPrev');
+            this.aymPrev.disabled = true;
+            this.aymPrev.addEventListener('click', async () => { await this.controller.onClickPrev(); });
+        }
+    }
+
+    bindNext() {
+        if(this.aymNext == null) {
+            this.aymNext = $('#aymNext');
+            this.aymNext.disabled = true;
+            this.aymNext.addEventListener('click', async () => { await this.controller.onClickNext(); });
+        }
+    }*/
 
     bindSeek() {
         if(this.aymSeek == null) {
@@ -188,28 +248,24 @@ export class AYM_PlayerView {
         }
     }
 
-    bindUrlInput() {
-        if(this.aymUrlInput == null) {
-            this.aymUrlInput = $('#aymUrlInput');
-            this.aymUrlInput.disabled = true;
+    bindGain() {
+        if(this.aymGain == null) {
+            this.aymGain = $('#aymGain');
+            this.aymGain.disabled = true;
+            this.aymGain.min = 0;
+            this.aymGain.max = 1000;
+            this.aymGain.value = 500;
+            this.aymGain.addEventListener('input', async () => { await this.controller.onInputGain(); });
         }
     }
 
-    bindUrlPlay() {
-        if(this.aymUrlPlay == null) {
-            this.aymUrlPlay = $('#aymUrlPlay');
-            this.aymUrlPlay.disabled = true;
-            this.aymUrlPlay.addEventListener('click', async () => { 
-                const urlValue = this.aymUrlInput.value.trim();
-                if (urlValue) {
-                    await this.controller.onUrlFileSelected(urlValue);                    
-                }  else {
-                    this.setStatusDisplay("Enter a valid URL.");
-                }       
-            });
+    bindChip0() {
+        if(this.aymChip0 == null) {
+            this.aymChip0 = $('#aymChip0');
+            this.aymChip0.disabled = true;
+            this.aymChip0.addEventListener('click', async () => { await this.controller.onClickChip0(); });
         }
     }
-
 
     bindMuteA() {
         if(this.aymMuteA == null) {
@@ -337,6 +393,16 @@ export class AYM_PlayerView {
 
     //////////////////////////////////////////////////////
     // ADD GAM
+    bindSelector() {
+        this.aymSelector = $('#aymSelector');
+        this.aymSelector.addEventListener('change', async () => {
+            const selectedIndex = parseInt(this.aymSelector.value, 10);
+            await this.controller.onSelectTrack(selectedIndex);
+        });
+    }
+
+    //////////////////////////////////////////////////////
+    // ADD GAM
     bindFilePicker() {
         this.filePicker = $('#file-picker', false); // false por si no existe en todos los HTMLs
         if (this.filePicker) {
@@ -370,6 +436,14 @@ export class AYM_PlayerView {
         });
     }
 
+    /*enablePlay() {
+        AYM_Utils.enableElement(this.aymPlay);
+    }
+
+    disablePlay() {
+        AYM_Utils.disableElement(this.aymPlay);
+    }*/
+
     enableFilePlay() {
         AYM_Utils.enableElement(this.aymFilePlay);
     }
@@ -390,6 +464,10 @@ export class AYM_PlayerView {
         AYM_Utils.enableElement(this.aymStop);
     }
 
+    disableStop() {
+        AYM_Utils.disableElement(this.aymStop);
+    }
+
     enableFileStop() {
         AYM_Utils.enableElement(this.aymFileStop);
     }
@@ -398,22 +476,21 @@ export class AYM_PlayerView {
         AYM_Utils.disableElement(this.aymFileStop);
     }
 
-    enableUrlInput() {
-        AYM_Utils.enableElement(this.aymUrlInput);
+    enablePrev() {
+        AYM_Utils.enableElement(this.aymPrev);
     }
 
-    disableUrlInput() {
-        AYM_Utils.disableElement(this.aymUrlInput);
+    disablePrev() {
+        AYM_Utils.disableElement(this.aymPrev);
     }
 
-    enableUrlPlay() {
-        AYM_Utils.enableElement(this.aymUrlPlay);
+    enableNext() {
+        AYM_Utils.enableElement(this.aymNext);
     }
 
-    disableUrlPlay() {
-        AYM_Utils.disableElement(this.aymUrlPlay);
+    disableNext() {
+        AYM_Utils.disableElement(this.aymNext);
     }
-
 
     enableSeek() {
         AYM_Utils.enableElement(this.aymSeek);
@@ -421,6 +498,22 @@ export class AYM_PlayerView {
 
     disableSeek() {
         AYM_Utils.disableElement(this.aymSeek);
+    }
+
+    enableGain() {
+        AYM_Utils.enableElement(this.aymGain);
+    }
+
+    disableGain() {
+        AYM_Utils.disableElement(this.aymGain);
+    }
+
+    enableChip0() {
+        AYM_Utils.enableElement(this.aymChip0);
+    }
+
+    disableChip0() {
+        AYM_Utils.disableElement(this.aymChip0);
     }
 
     enableMuteA() {
@@ -532,9 +625,19 @@ export class AYM_PlayerView {
         AYM_Utils.disableElement(this.aymTimeCanvasCh2);
     }
 
+    setPlaying() {
+        this.disablePlay();
+        this.enableStop();
+    }
+
     setPlayingFile(){
         this.disableFilePlay();
         this.enableFileStop();
+    }
+
+    setStopped() {
+        this.disableStop();
+        this.enablePlay();
     }
 
     setStoppedFile(){
@@ -553,111 +656,107 @@ export class AYM_PlayerView {
 
     setMutedA() {
         if(this.aymMuteA != null) {
-            //this.aymMuteA.className = 'is-toggled';
-            this.aymMuteA.classList.add('is-toggled');
+            this.aymMuteA.className = 'is-toggled';
         }
     }
 
     setUnmutedA() {
         if(this.aymMuteA != null) {
-            //this.aymMuteA.className = '';
-            this.aymMuteA.classList.remove('is-toggled');
+            this.aymMuteA.className = '';
         }
     }
 
     setMutedB() {
         if(this.aymMuteB != null) {
-            //this.aymMuteB.className = 'is-toggled';
-            this.aymMuteB.classList.add('is-toggled');
+            this.aymMuteB.className = 'is-toggled';
         }
     }
 
     setUnmutedB() {
         if(this.aymMuteB != null) {
-            //this.aymMuteB.className = '';
-            this.aymMuteB.classList.remove('is-toggled');
+            this.aymMuteB.className = '';
         }
     }
 
     setMutedC() {
         if(this.aymMuteC != null) {
-            //this.aymMuteC.className = 'is-toggled';
-            this.aymMuteC.classList.add('is-toggled');
+            this.aymMuteC.className = 'is-toggled';
         }
     }
 
     setUnmutedC() {
         if(this.aymMuteC != null) {
-            //this.aymMuteC.className = '';
-            this.aymMuteC.classList.remove('is-toggled');
+            this.aymMuteC.className = '';
         }
     }
 
     setOnlyA() {
         if(this.aymOnlyA != null) {
-            //this.aymOnlyA.className = 'is-toggled';
-            this.aymOnlyA.classList.add('is-toggled');
+            this.aymOnlyA.className = 'is-toggled';
         }
     }
 
     unSetOnlyA() {
         if(this.aymOnlyA != null) {
-            //this.aymOnlyA.className = '';
-            this.aymOnlyA.classList.remove('is-toggled');
+            this.aymOnlyA.className = '';
         }
     }
 
     setOnlyB() {
         if(this.aymOnlyB != null) {
-            //this.aymOnlyB.className = 'is-toggled';
-            this.aymOnlyB.classList.add('is-toggled');
+            this.aymOnlyB.className = 'is-toggled';
         }
     }
 
     unSetOnlyB() {
         if(this.aymOnlyB != null) {
-            //this.aymOnlyB.className = '';
-            this.aymOnlyB.classList.remove('is-toggled');
+            this.aymOnlyB.className = '';
         }
     }
 
     setOnlyC() {
         if(this.aymOnlyC != null) {
-            //this.aymOnlyC.className = 'is-toggled';
-            this.aymOnlyC.classList.add('is-toggled');
+            this.aymOnlyC.className = 'is-toggled';
         }
     }
 
     unSetOnlyC() {
         if(this.aymOnlyC != null) {
-            //this.aymOnlyC.className = '';
-            this.aymOnlyC.classList.remove('is-toggled');
+            this.aymOnlyC.className = '';
         }
     }
 
     setPaused() {
         if(this.aymPause != null) {
-            //this.aymPause.className = 'is-toggled';
-            this.aymOnlyC.classList.add('is-toggled');
+            this.aymPause.className = 'is-toggled';
         }
-        /*if(this.aymChip0 != null) {
+        if(this.aymChip0 != null) {
             this.aymChip0.className = 'is-toggled';
-        }*/
+        }
     }
 
     setResumed() {
         if(this.aymPause != null) {
-            //this.aymPause.className = '';
-            this.aymOnlyC.classList.remove('is-toggled');
+            this.aymPause.className = '';
         }
-        /*if(this.aymChip0 != null) {
+        if(this.aymChip0 != null) {
             this.aymChip0.className = '';
-        }*/
+        }
+    }
+
+    setDisplay(message) {
+        AYM_Utils.setInnerText(this.aymDisplay, message);
+    }
+
+    setFileDisplay(message) {
+        AYM_Utils.setInnerText(this.aymFileDisplay, message);
     }
 
     setStatusDisplay(message) {
         AYM_Utils.setInnerText(this.aymStatusDisplay, message);
     }
+
+
 
     setSeekValue(seek) {
         const min = 0;
@@ -665,6 +764,14 @@ export class AYM_PlayerView {
         const val = ((seek * 1000.0) | 0);
 
         AYM_Utils.setValue(this.aymSeek, AYM_Utils.clamp_int(val, min, max));
+    }
+
+    /////////////////////////////////////////////
+    // Add GAM
+    setSelectedTrackIndex(index) {
+        if (this.aymSelector != null) {
+            this.aymSelector.value = index;
+        }
     }
 
     getSeekValue() {
@@ -694,6 +801,23 @@ export class AYM_PlayerView {
 
     //////////////////////////////////////////////////////////////////////
     // ADD GAM
+    populateSelector(trackList) {
+        if (this.aymSelector != null) {
+            // Limpiamos opciones previas estáticas
+            this.aymSelector.innerHTML = '';
+            
+            // Poblamos dinámicamente recorriendo el arreglo enviado desde el hilo de audio
+            trackList.forEach((trackName, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.text = trackName; // Muestra el nombre/autor de la canción
+                this.aymSelector.appendChild(option);
+            });
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////
+    // ADD GAM
     populateTracksContainer(tracks) {
         // 1. Seleccionar el contenedor
         const container = document.querySelector('.ym-tracks-container');
@@ -710,7 +834,7 @@ export class AYM_PlayerView {
             link.className = 'ym-link';
             link.innerText = track.name;
 
-            //const lineBreak = document.createElement('br');
+            const lineBreak = document.createElement('br');
             // py-0.5 = padding vertical ultra ajustado (2px arriba y abajo)
             // my-0 = margen cero
             // leading-tight = interlineado compacto
@@ -731,11 +855,13 @@ export class AYM_PlayerView {
                 await this.controller.onHyperlinkFileSelected(track.url, track.name); // Reproducir
             });
 
+
             // 5. Inser el enlace recién creado en el contenedor
             container.appendChild(link);
             //container.appendChild(lineBreak)
         });
     }
+
 
     renderFFT() {
         const analyser  = this.controller.model.waAnalyser;
@@ -762,9 +888,9 @@ export class AYM_PlayerView {
 
 
 
-        const backcolor = '#111524'; //'#e0e0e0';
-        const linecolor = '#747b7c';
-        const barcolor  = '#c7d5d7';
+        const backcolor = '#e0e0e0';
+        const linecolor = '#ff4444';
+        const barcolor  = '#ff5555';
 
         const waveLineWidth = 1;
 

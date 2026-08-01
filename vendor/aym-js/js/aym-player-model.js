@@ -38,7 +38,7 @@ export class AYM_PlayerModel {
 
     async powerOn() {
         await this.createContext();
-        await this.createWorklet();
+         await this.createWorklet();
         await this.createAnalyser();
         await this.createGain();
         await this.controller.onInputGain();
@@ -63,12 +63,10 @@ export class AYM_PlayerModel {
         if(this.waContext != null) {
             await this.waContext.close();
             this.waContext = null;
-        } 
+        }
     }
 
     async createAnalyser() {
-        let fftSize = 64;
-
         if(this.waAnalyser == null) {
             this.waAnalyser = this.waContext.createAnalyser();
             this.waAnalyser.connect(this.waContext.destination);
@@ -78,7 +76,7 @@ export class AYM_PlayerModel {
 
             // 3. Crear el analizador exclusivo para el Canal 0
             this.waAnalyserCh0 = this.waContext.createAnalyser();
-            this.waAnalyserCh0.fftSize = fftSize; // Ajusta el tamaño de bandas según tus necesidades
+            //this.waAnalyserCh0.fftSize = 64; // Ajusta el tamaño de bandas según tus necesidades
             this.waWorklet.connect(this.waAnalyserCh0, 1, 0); // <--- Salida 1 (Canal A puro)
 
             // 4. Conectar la salida 0 del splitter (L / Izquierda) al analizador del Canal 0
@@ -86,13 +84,13 @@ export class AYM_PlayerModel {
 
             // Crear el analizador para el Canal 1 (Aproximación usando la mezcla L)
             this.waAnalyserCh1 = this.waContext.createAnalyser();
-            this.waAnalyserCh1.fftSize = fftSize;
+            //this.waAnalyserCh1.fftSize = 64;
             //this.waSplitter.connect(this.waAnalyserCh1, 0, 0); 
             this.waWorklet.connect(this.waAnalyserCh1, 2, 0); // <--- Salida 2 (Canal B puro)
 
             // Crear el analizador exclusivo para el Canal 2 (Derecha)
             this.waAnalyserCh2 = this.waContext.createAnalyser();
-            this.waAnalyserCh2.fftSize = fftSize;
+            //this.waAnalyserCh2.fftSize = 64;
             //this.waSplitter.connect(this.waAnalyserCh2, 1, 0); // Conecta salida R
             this.waWorklet.connect(this.waAnalyserCh2, 3, 0); // <--- Salida 3 (Canal C puro)
 
@@ -243,8 +241,8 @@ export class AYM_PlayerModel {
             case 'Title':
                 this.controller.recvTitle(payload.message_data);
                 break;
-            case 'FileData':
-                this.controller.recvFileData(payload.message_data);
+            case 'TitleFile':
+                this.controller.recvTitleFile(payload.message_data);
                 break;
             case 'Seek':
                 this.controller.recvSeek(payload.message_data);
@@ -268,6 +266,10 @@ export class AYM_PlayerModel {
                 break;
             case 'Unchanged':
                 this.controller.recvUnchanged();
+                break;
+            // Add GAM
+            case 'TrackList':
+                this.controller.recvTrackList(payload.message_data);
                 break;
             default:
                 break;
@@ -340,12 +342,25 @@ export class AYM_PlayerModel {
         }
     }
 
+    /////////////////////////////////////////////////////
+    // Add by GAM
+    sendSelectTrack(index) {
+        this.sendMessage('SelectTrack', index);
+    }
+
+    /////////////////////////////////////////////////////
+    // Add by GAM
+    sendRequestTrackList() {
+        this.sendMessage('RequestTrackList');
+    }
 
     /////////////////////////////////////////////////////
     // Add by GAM
     sendExternalTrack(musicData) {
         // Mandamos el comando personalizado 'PlayExternal' con la estructura completa
         this.sendMessage('PlayExternal', musicData);
+
+        console.log("sendMessage OK...");
     }
 }
 
