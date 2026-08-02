@@ -316,14 +316,6 @@ export class AYM_PlayerModel {
         this.sendMessage('Play');
     }
 
-    sendStop() {
-        this.sendMessage('Stop');
-    }
-
-    sendStopFile() {
-        this.sendMessage('StopFile');
-    }
-
     sendPrev() {
         this.sendMessage('Prev');
     }
@@ -340,12 +332,6 @@ export class AYM_PlayerModel {
         if(this.waGain != null) {
             this.waGain.gain.value = 0.5; //AYM_Utils.clamp_flt(gain, 0.0, 1.0);
         }
-    }
-
-    /////////////////////////////////////////////////////
-    // Add by GAM
-    sendSelectTrack(index) {
-        this.sendMessage('SelectTrack', index);
     }
 
     /////////////////////////////////////////////////////

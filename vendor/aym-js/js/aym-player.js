@@ -37,26 +37,6 @@ export class AYM_Player {
         this.loadFromStaticJson();
     }
 
-    async onClickPlay() {
-        
-        //this.model.sendPlay();
-        // Obtener el índice seleccionado en el componente <select>
-        const trackIndex = this.view.getSelectedTrackIndex();
-        // Se envía el comando Play incluyendo el índice de la canción
-        this.model.sendPlay(trackIndex);
-
-        /*
-        if (this.audioSource === 'external') {
-            // Si hay un archivo externo activo, mandamos 'Play' puro (null) para reanudarlo
-            this.model.sendPlay(null);
-        } else {
-            // Si estamos en modo interno, mantenemos la sincronización con el <select>
-            const trackIndex = this.view.getSelectedTrackIndex();
-            this.model.sendPlay(trackIndex);
-        }
-        */
-    }
-
     async loadFromStaticJson() {
         try {
             // Solicitamos el archivo JSON estático que vive en la misma carpeta de música[cite: 2]
@@ -279,10 +259,10 @@ export class AYM_Player {
 
     /////////////////////////////////////////////////////////////////////
     // Add GAM
-    async onSelectTrack(index) {
+    /*async onSelectTrack(index) {
         this.audioSource = 'internal';
         this.model.sendSelectTrack(index);
-    }
+    }*/
 
     /////////////////////////////////////////////////////////////////////
     // Add GAM
@@ -296,7 +276,7 @@ export class AYM_Player {
     async onFileSelected(file) {
         try {
             //this.view.setFileDisplay("Cargando y descompimiendo...");
-            this.view.setStatusDisplay("Cargando y descompimiendo...");
+            this.view.setStatusDisplay("Cargando y descomprimiendo...");
             
             // 1. Asegurar que la librería JSLha / localModules esté lista
             if (typeof initLhaLibrary === "function") {
@@ -355,7 +335,7 @@ export class AYM_Player {
     // Add GAM
     async onHyperlinkFileSelected(fileUrl, songName) {
         try {
-            this.view.setFileDisplay(`Descargando: ${songName}...`);
+            this.view.setStatusDisplay(`Descargando: ${songName}...`);
             
             // 1. Descargamos los bytes puros del archivo .ym desde el servidor de producción
             const response = await fetch(fileUrl);
@@ -372,9 +352,9 @@ export class AYM_Player {
             // 4. Invocamos de forma idéntica a tu pipeline original pasándole nuestro archivo ficticio
             await this.onFileSelected(mockFile);
             
-            this.view.setFileDisplay(`Remoto: ${songName}`);
+            //this.view.setStatusDisplay(`Remoto: ${songName}`);
         } catch (error) {
-            this.view.setFileDisplay("Error al reproducir el enlace");
+            this.view.setStatusDisplay("Error al reproducir el enlace");
             console.error(error);
         }
     }

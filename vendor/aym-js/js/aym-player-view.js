@@ -71,7 +71,6 @@ export class AYM_PlayerView {
         this.fftDataCh1 = null;
         this.fftDataCh2 = null;
         
-        this.aymFileDisplay = null; // Add GAM
         this.aymStatusDisplay = null; // Add GAM
         //this.aymSelector = null; // Add GAM
         this.filePicker  = null; // Add GAM para archivos ym
@@ -79,15 +78,11 @@ export class AYM_PlayerView {
     }
 
     async powerOn() {
-        //this.enablePlay();
         this.enableFilePlay(); // Add GAM
-        //this.disableStop();
         this.disableFileStop(); // Add GAM
         //this.enablePrev();
         //this.enableNext();
         this.enableSeek();
-        //this.enableGain();
-        //this.enableChip0();
 
         this.enableMuteA();
         this.enableMuteB();
@@ -102,8 +97,6 @@ export class AYM_PlayerView {
         this.enablePause();
         this.enableAnalyse();
         this.enableCanvas();
-        this.setDisplay('AYM·Player is On');
-        this.setFileDisplay('AYM Player is On');
         this.setStatusDisplay('AYM Player is On')
         this.startAnalyse();
     }
@@ -124,33 +117,22 @@ export class AYM_PlayerView {
 
         //this.disablePower();
 
-        //this.disableChip0();
-        //this.disableGain();
         this.disableSeek();
         //this.disableNext();
         //this.disablePrev();
-        //this.disableStop();
-        //this.disablePlay();
         this.disableFileStop(); // Add GAM
         this.disableFilePlay(); // Add GAM
-        //this.setDisplay('AYM·Player is Off');
-        //this.setFileDisplay('AYM Player is Off');
+
         this.setStatusDisplay('AYM Player is Off')
     }
 
     bind() {
-        //this.bindDisplay();
-        //this.bindFileDisplay(); // Add GAM
-        //this.bindPlay();
         this.bindFilePlay(); // Add GAM
-        //this.bindStop();
         this.bindFileStop(); // Add GAM
         this.bindStatusDisplay(); // Add GAM
         //this.bindPrev();
         //this.bindNext();
         this.bindSeek();
-        //this.bindGain();
-        //this.bindChip0();
 
         this.bindMuteA();
         this.bindMuteB();
@@ -165,35 +147,14 @@ export class AYM_PlayerView {
         this.bindPause();
         this.bindAnalyse();
         this.bindCanvas();
-        //this.bindSelector();   // Add GAM
         this.bindFilePicker(); // Add GAM
         this.bindHyperlinks();
     }
 
-    bindDisplay() {
-        if(this.aymDisplay == null) {
-            this.aymDisplay = $('#aymDisplay');
-        }
-    }
-
-    bindFileDisplay() {
-        if(this.aymFileDisplay == null) {
-            this.aymFileDisplay = $('#aymFileDisplay');
-        }
-    }
 
     bindStatusDisplay() {
         if(this.aymStatusDisplay == null) {
             this.aymStatusDisplay = $('#aymStatusDisplay');
-        }
-    }
-
-
-    bindPlay() {
-        if(this.aymPlay == null) {
-            this.aymPlay = $('#aymPlay');
-            this.aymPlay.disabled = true;
-            this.aymPlay.addEventListener('click', async () => { await this.controller.onClickPlay(); });
         }
     }
 
@@ -202,14 +163,6 @@ export class AYM_PlayerView {
             this.aymFilePlay = $('#aymFilePlay');
             this.aymFilePlay.disabled = true;
             this.aymFilePlay.addEventListener('click', async () => { await this.controller.onClickFilePlay(); });
-        }
-    }
-
-    bindStop() {
-        if(this.aymStop == null) {
-            this.aymStop = $('#aymStop');
-            this.aymStop.disabled = true;
-            this.aymStop.addEventListener('click', async () => { await this.controller.onClickStop(); });
         }
     }
 
@@ -245,25 +198,6 @@ export class AYM_PlayerView {
             this.aymSeek.max = 1000;
             this.aymSeek.value = 0;
             this.aymSeek.addEventListener('input', async () => { await this.controller.onInputSeek(); });
-        }
-    }
-
-    bindGain() {
-        if(this.aymGain == null) {
-            this.aymGain = $('#aymGain');
-            this.aymGain.disabled = true;
-            this.aymGain.min = 0;
-            this.aymGain.max = 1000;
-            this.aymGain.value = 500;
-            this.aymGain.addEventListener('input', async () => { await this.controller.onInputGain(); });
-        }
-    }
-
-    bindChip0() {
-        if(this.aymChip0 == null) {
-            this.aymChip0 = $('#aymChip0');
-            this.aymChip0.disabled = true;
-            this.aymChip0.addEventListener('click', async () => { await this.controller.onClickChip0(); });
         }
     }
 
@@ -393,16 +327,6 @@ export class AYM_PlayerView {
 
     //////////////////////////////////////////////////////
     // ADD GAM
-    bindSelector() {
-        this.aymSelector = $('#aymSelector');
-        this.aymSelector.addEventListener('change', async () => {
-            const selectedIndex = parseInt(this.aymSelector.value, 10);
-            await this.controller.onSelectTrack(selectedIndex);
-        });
-    }
-
-    //////////////////////////////////////////////////////
-    // ADD GAM
     bindFilePicker() {
         this.filePicker = $('#file-picker', false); // false por si no existe en todos los HTMLs
         if (this.filePicker) {
@@ -436,14 +360,6 @@ export class AYM_PlayerView {
         });
     }
 
-    /*enablePlay() {
-        AYM_Utils.enableElement(this.aymPlay);
-    }
-
-    disablePlay() {
-        AYM_Utils.disableElement(this.aymPlay);
-    }*/
-
     enableFilePlay() {
         AYM_Utils.enableElement(this.aymFilePlay);
     }
@@ -462,10 +378,6 @@ export class AYM_PlayerView {
 
     enableStop() {
         AYM_Utils.enableElement(this.aymStop);
-    }
-
-    disableStop() {
-        AYM_Utils.disableElement(this.aymStop);
     }
 
     enableFileStop() {
@@ -500,21 +412,10 @@ export class AYM_PlayerView {
         AYM_Utils.disableElement(this.aymSeek);
     }
 
-    enableGain() {
-        AYM_Utils.enableElement(this.aymGain);
-    }
-
     disableGain() {
         AYM_Utils.disableElement(this.aymGain);
     }
 
-    enableChip0() {
-        AYM_Utils.enableElement(this.aymChip0);
-    }
-
-    disableChip0() {
-        AYM_Utils.disableElement(this.aymChip0);
-    }
 
     enableMuteA() {
         AYM_Utils.enableElement(this.aymMuteA);
@@ -636,7 +537,6 @@ export class AYM_PlayerView {
     }
 
     setStopped() {
-        this.disableStop();
         this.enablePlay();
     }
 
@@ -742,14 +642,6 @@ export class AYM_PlayerView {
         if(this.aymChip0 != null) {
             this.aymChip0.className = '';
         }
-    }
-
-    setDisplay(message) {
-        AYM_Utils.setInnerText(this.aymDisplay, message);
-    }
-
-    setFileDisplay(message) {
-        AYM_Utils.setInnerText(this.aymFileDisplay, message);
     }
 
     setStatusDisplay(message) {

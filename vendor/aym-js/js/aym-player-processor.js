@@ -95,9 +95,6 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
             case 'Play':
                 this.recvPlay();
                 break;
-            case 'Stop':
-                this.recvStop();
-                break;
             case 'StopFile':
                 this.recvStopFile();
                 break;
@@ -359,16 +356,6 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         
     }
 
-    recvStop() {
-        this.chip_flags |= AYM_FLAG_RESET;
-        this.music_index = -1;
-        this.music_count = 0;
-        this.music_ticks = 0;
-        this.music_clock = 0;
-        this.setChipMasterClock(this.music.frequency);
-        this.sendStopped();
-    }
-
     recvStopFile() {
         this.chip_flags |= AYM_FLAG_RESET;
         this.music_index = -1;
@@ -424,23 +411,6 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         const music_count = this.music_count;
         if((music_index > 0) && (music_count > 0)) {
             this.music_index = (((music_count * seek) | 0) % music_count);
-        }
-    }
-
-    /////////////////////////////////////////////////////////////////////
-    // Add GAM
-    recvSelectTrack(trackIndex) {
-        const music = this.playlist.setTrack(trackIndex);
-        if (music != null) {
-            this.music = music;
-            this.music_index = 0; // Inicia la canción desde el principio
-            this.music_count = this.music.length;
-            this.music_ticks = 0;
-            this.music_clock = this.music.framerate;
-            this.setChipMasterClock(this.music.frequency);
-            this.sendChanged();
-            this.sendTitle();
-            this.sendPlaying();
         }
     }
 
