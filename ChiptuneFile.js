@@ -54,10 +54,21 @@ export class ChiptuneFile {
         this.processLog = "";
     }
 
-    getData() { return [this.songData, this.nFrames, this.interleaved]; }
-    getAdditionalInfo() { return this.additionalInfo; }
-    getProcessLog() { return this.processLog; }
-    getFormatType() { return this.formatType; }
+    getData() { 
+        return [this.songData, this.nFrames, this.interleaved]; 
+    }
+
+    getAdditionalInfo() { 
+        return this.additionalInfo; 
+    }
+
+    getProcessLog() { 
+        return this.processLog; 
+    }
+
+    getFormatType() { 
+        return this.formatType; 
+    }
 
     async loadFile(fileObject) {
         this.additionalInfo = "";
