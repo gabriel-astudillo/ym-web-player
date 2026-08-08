@@ -2,19 +2,55 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Decoder de Chiptunes YM</title>
+    <title>Decoder de Chiptunes YM a C++ Header</title>
     <style>
-        body { font-family: sans-serif; background-color: #1e1e24; color: #f5f5f5; max-width: 800px; margin: 40px auto; padding: 20px; }
+        body { font-family: sans-serif; background-color: #1e1e24; color: #f5f5f5; max-width: 900px; margin: 40px auto; padding: 20px; }
         h1 { color: #00adb5; }
         .card { background-color: #2a2a35; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        pre { background-color: #111116; padding: 15px; border-radius: 6px; overflow-x: auto; color: #a9ffb2; font-family: 'Courier New', Courier, monospace; font-size: 13px; }
+        pre { background-color: #111116; padding: 15px; border-radius: 6px; overflow-x: auto; color: #a9ffb2; font-family: 'Courier New', Courier, monospace; font-size: 13px; line-height: 1.4; }
         .error { color: #ff6b6b; }
         .song-data-header { color: #00adb5; margin-top: 20px; border-bottom: 1px dashed #393e46; padding-bottom: 5px; }
+        .btn-copy { background-color: #00adb5; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .btn-copy:hover { background-color: #00868d; }
+
+        /* Configuración con scrollbar vertical para el código C++ generado */
+        #info-song-data {
+            background-color: #111116;
+            padding: 15px;
+            border-radius: 6px;
+            color: #a9ffb2;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            
+            /* Configuración de Control de Scroll */
+            max-height: 450px;      /* Define la altura máxima visible antes de mostrar scroll */
+            overflow-y: auto;       /* Muestra el scrollbar vertical solo si el contenido excede la altura */
+            overflow-x: auto;       /* Muestra scrollbar horizontal para las 14 columnas de código si es necesario */
+            box-sizing: border-box; /* Asegura que el padding no afecte el tamaño total */
+        }
+
+        /* Opcional: Estilizado del Scrollbar en navegadores WebKit (Chrome, Edge, Safari) */
+        #info-song-data::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        #info-song-data::-webkit-scrollbar-track {
+            background: #1e1e24;
+            border-radius: 4px;
+        }
+        #info-song-data::-webkit-scrollbar-thumb {
+            background: #00adb5;
+            border-radius: 4px;
+        }
+        #info-song-data::-webkit-scrollbar-thumb:hover {
+            background: #00868d;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Decodificador de Chiptunes YM</h1>
+    <h1>Decodificador de Chiptunes YM a C++ Header</h1>
     
     <div class="card">
         <label style="display:block; margin-bottom:10px;">Selecciona un archivo (.ym):</label>
@@ -30,7 +66,8 @@
         <h3>Metadatos</h3>
         <pre id="info-metadata"></pre>
 
-        <h3 class="song-data-header">Registros de Sonido (14 columnas por línea)</h3>
+        <h3 class="song-data-header">Código Fuente Generado (C++ Header)</h3>
+        <button class="btn-copy" id="btn-copy-cpp">Copiar al Portapapeles</button>
         <pre id="info-song-data"></pre>
     </div>
 
@@ -93,6 +130,8 @@
         const filePicker = document.getElementById('file-picker');
         const resultCard = document.getElementById('result-card');
         const logCard = document.getElementById('log-card');
+        const btnCopy = document.getElementById('btn-copy-cpp');
+        const songDataContainer = document.getElementById('info-song-data');
 
         filePicker.addEventListener('change', async (e) => {
             const file = e.target.files[0];
@@ -111,34 +150,78 @@
                 document.getElementById('info-format').textContent = chiptune.getFormatType();
                 document.getElementById('info-frames').textContent = nFrames;
                 document.getElementById('info-size').textContent = `${songData.length} bytes`;
-                document.getElementById('info-metadata').textContent = chiptune.getAdditionalInfo() || 'Sin metadatos.';
+                
+                const rawMetadata = chiptune.getAdditionalInfo() || 'Sin metadatos.';
+                document.getElementById('info-metadata').textContent = rawMetadata;
                 document.getElementById('info-log').textContent = chiptune.getProcessLog();
 
-                // --- MOSTRADO ORDENADO MATRICIAL EN 14 COLUMNAS POR LÍNEA ---
-                const songDataContainer = document.getElementById('info-song-data');
+                // --- FORMATO Y LIMPIEZA DEL NOMBRE DE VARIABLE PARA C++ ---
+                const baseName = file.name.replace(/\.[^/.]+$/, ""); // Quitar extensión .ym
+                const varName = baseName.toLowerCase().replace(/[^a-z0-9_]/g, '_'); // Sanitizar
+                const headerGuard = `${varName.toUpperCase()}_SONG_H`;
+
+                // --- GENERACIÓN DEL FORMATO C++ HEADER ---
                 const registersPerLine = 14; 
-                let lines = [];
+                let cppCode = [];
 
-                for (let i = 0; i < songData.length; i += registersPerLine) {
+                // Encabezado e Include Guards
+                cppCode.push(`/*`);
+                cppCode.push(` * Chiptune YM a C++ Header Auto-Generado`);
+                cppCode.push(` * Archivo Original: ${file.name}`);
+                cppCode.push(` * Formato YM: ${chiptune.getFormatType()}`);
+                cppCode.push(` * Total Frames: ${nFrames}`);
+                cppCode.push(` * Metadata:`);
+                rawMetadata.split('\n').forEach(line => {
+                    if (line.trim()) cppCode.push(` *   ${line}`);
+                });
+                cppCode.push(` */\n`);
+                cppCode.push(`#ifndef ${headerGuard}`);
+                cppCode.push(`#define ${headerGuard}\n`);
+                //cppCode.push(`#include <stdint.h>\n`);
+                cppCode.push(`const uint16_t ${varName}_frames = ${nFrames};`);
+                cppCode.push(`const uint8_t ${varName}_registers_per_frame = ${registersPerLine};\n`);
+                cppCode.push(`// Registros AY-3-8910 organizados matricialmente (14 columnas por frame)`);
+                cppCode.push(`const byte PROGMEM ${varName}_data[] = {`);
+
+                // Formateo de bytes en filas de 14 columnas
+                let totalElements = songData.length;
+                for (let i = 0; i < totalElements; i += registersPerLine) {
                     const chunk = songData.slice(i, i + registersPerLine);
-                    // Mapeo estilizado a bytes Hexadecimales clásicos de trackers retro (ej: 0x4E)
-                    const formattedLine = chunk.map(b => "0x" + b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
-                    lines.push(formattedLine);
+                    const isLastChunk = (i + registersPerLine) >= totalElements;
+                    
+                    // Convertir cada byte a formato Hex 0xXX
+                    const formattedChunk = chunk.map(b => "0x" + b.toString(16).toUpperCase().padStart(2, '0')).join(', ');
+                    
+                    // Agregar coma al final de la línea excepto en la última fila
+                    const lineEnding = isLastChunk ? "" : ",";
+                    const frameIndex = Math.floor(i / registersPerLine);
 
-                    // Guard-rail de optimización para que la UI no sufra bloqueos por textos inmensos
-                    if (lines.length > 100) {
-                        lines.push(`... [Muestra limitada a los primeros 100 frames de un total de ${Math.ceil(songData.length / registersPerLine)} por rendimiento] ...`);
-                        break;
-                    }
+                    cppCode.push(`    ${formattedChunk}${lineEnding} // Frame ${frameIndex}`);
                 }
 
-                songDataContainer.textContent = lines.join('\n');
+                cppCode.push(`};\n`);
+                cppCode.push(`#endif // ${headerGuard}`);
+
+                // Inyectar en el contenedor <pre>
+                songDataContainer.textContent = cppCode.join('\n');
 
             } catch (err) {
                 logCard.style.display = 'block';
                 resultCard.style.display = 'none';
                 document.getElementById('info-log').textContent = `Error:\n${err.message}`;
             }
+        });
+
+        // Botón para copiar directamente el código C++ generado
+        btnCopy.addEventListener('click', () => {
+            const codeText = songDataContainer.textContent;
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = btnCopy.textContent;
+                btnCopy.textContent = "¡Copiado!";
+                setTimeout(() => btnCopy.textContent = originalText, 2000);
+            }).catch(err => {
+                console.error("Error al copiar al portapapeles:", err);
+            });
         });
     </script>
 </body>
