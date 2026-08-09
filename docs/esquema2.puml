@@ -1,0 +1,63 @@
+@startuml
+autonumber
+skinparam Style StrictUML
+skinparam BoxPadding 10
+
+actor Usuario
+participant "AYMPlayerView\n(UI Controller)" as View
+participant "AYMPlayer\n(Main Controller)" as Player
+participant "AYMPlayerModel\n(State & Song Data)" as Model
+participant "AYMPlayerProcessor\n(Audio Worklet)" as Processor
+participant "AYMEmulatorAdapter\n(WebAssembly/JS Core)" as Adapter
+
+== Inicialización del Sistema ==
+Usuario -> View: Interactúa con la UI (e.g. Cargar archivo / Play)
+activate View
+View -> Player: play() / loadFile(file)
+activate Player
+
+Player -> Model: setTrackData(arrayBuffer)
+activate Model
+Model --> Player: trackReady
+deactivate Model
+
+== Configuración del Audio Framework ==
+Player -> Processor: initAudioContext()
+activate Processor
+Processor -> Adapter: createEmulatorInstance()
+activate Adapter
+Adapter --> Processor: emulatorRef
+deactivate Adapter
+
+Processor --> Player: audioProcessorReady
+deactivate Processor
+
+== Ciclo de Reproducción y Procesamiento de Audio ==
+Player -> Processor: startProcessing()
+activate Processor
+
+loop Renderizado de Audio en Tiempo Real (Audio Thread)
+    Processor -> Model: getNextRegistersFrame(frameIndex)
+    activate Model
+    Model --> Processor: registerData (PSG AY-3-8910)
+    deactivate Model
+
+    Processor -> Adapter: writeRegisters(registerData)
+    activate Adapter
+    Adapter -> Adapter: Emular ciclo AY-3-8910 / Generar PCM Buffer
+    Adapter --> Processor: pcmAudioFrame
+    deactivate Adapter
+
+    Processor -> Processor: Enviar muestras al AudioDestinationNode
+end
+
+== Actualización de Estado y Analizador Visual ==
+Processor -> Player: postMessage({ status, currentFrame, fftData })
+deactivate Processor
+
+Player -> View: updateUI({ currentTime, Spectrum, Oscilloscope })
+View --> Usuario: Renderiza espectro y canales de audio
+deactivate Player
+deactivate View
+
+@enduml

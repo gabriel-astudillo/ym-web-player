@@ -247,6 +247,9 @@ export class AYM_PlayerModel {
             case 'Seek':
                 this.controller.recvSeek(payload.message_data);
                 break;
+            case 'Frame':
+                this.controller.recvFrame(payload.message_data);
+                break;
             case 'Playing':
                 this.controller.recvPlaying();
                 break;

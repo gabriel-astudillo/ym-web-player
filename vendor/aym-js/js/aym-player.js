@@ -35,6 +35,7 @@ export class AYM_Player {
         this.view.bind();
         //this.onClickPower();
         this.loadFromStaticJson();
+        this.view.resetFrameDisplay();
     }
 
     async loadFromStaticJson() {
@@ -173,6 +174,10 @@ export class AYM_Player {
 
     async recvSeek(seek) {
         this.view.setSeekValue(seek);
+    }
+
+    async recvFrame(nFrame) { 
+        this.view.updateCurrentFrame(nFrame);
     }
 
     async recvPlaying() {
@@ -315,6 +320,7 @@ export class AYM_Player {
 
                     // 5. Enviar al modelo para su inyección al AudioWorklet
                     this.model.sendExternalTrack(this.externalMusic);
+                    this.view.setTotalFrames(nFrames);
                     //console.log("onFileSelected OK...");
                 } catch (err) {
                     //this.view.setFileDisplay("Error de decodificación");

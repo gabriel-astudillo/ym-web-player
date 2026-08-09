@@ -24,7 +24,12 @@ import { AYM_Utils, $ } from './aym-utils.js';
 export class AYM_PlayerView {
     constructor(controller) {
         this.controller = controller;
+        
         this.aymDisplay = null;
+        this.currentFrame = null;
+        this.totalFrames  = null;
+
+
         this.aymPlay    = null;
         this.aymFilePlay = null; // Add GAM
         this.aymStop    = null;
@@ -97,8 +102,9 @@ export class AYM_PlayerView {
         this.enablePause();
         this.enableAnalyse();
         this.enableCanvas();
-        this.setStatusDisplay('AYM Player is On')
+        this.setStatusDisplay('AYM Player is On');
         this.startAnalyse();
+        this.resetFrameDisplay();
     }
 
     async powerOff() {
@@ -123,13 +129,17 @@ export class AYM_PlayerView {
         this.disableFileStop(); // Add GAM
         this.disableFilePlay(); // Add GAM
 
-        this.setStatusDisplay('AYM Player is Off')
+        this.setStatusDisplay('AYM Player is Off');
+        this.resetFrameDisplay();
     }
 
     bind() {
         this.bindFilePlay(); // Add GAM
         this.bindFileStop(); // Add GAM
         this.bindStatusDisplay(); // Add GAM
+        this.bindCurrentFrame();
+        this.bindTotalFrames();
+
         //this.bindPrev();
         //this.bindNext();
         this.bindSeek();
@@ -157,6 +167,18 @@ export class AYM_PlayerView {
             this.aymStatusDisplay = $('#aymStatusDisplay');
         }
     }
+
+   bindCurrentFrame(){
+        if(this.currentFrame == null) {
+            this.currentFrame = $('#aymCurrentFrame');
+        }
+   }
+    
+   bindTotalFrames(){
+        if(this.totalFrames == null) {
+            this.totalFrames = $('#aymTotalFrames');   
+        } 
+   }
 
     bindFilePlay() {
         if(this.aymFilePlay == null) {
@@ -648,6 +670,23 @@ export class AYM_PlayerView {
         AYM_Utils.setInnerText(this.aymStatusDisplay, message);
     }
 
+    setTotalFrames(frames) {
+        AYM_Utils.setInnerText(this.totalFrames, frames);    }
+
+    updateCurrentFrame(frame) {
+        AYM_Utils.setInnerText(this.currentFrame, frame);
+    }
+
+    resetFrameDisplay(){
+        if(this.totalFrames != null) {
+            AYM_Utils.setInnerText(this.totalFrames, '0000');
+        }
+        if(this.currentFrame != null) {
+            AYM_Utils.setInnerText(this.currentFrame, '0000');
+        }
+    }
+
+    
 
 
     setSeekValue(seek) {

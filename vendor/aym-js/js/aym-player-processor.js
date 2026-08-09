@@ -510,6 +510,11 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         this.sendMessage('Seek', seek);
     }
 
+    sendFrame(frame) {
+        this.sendMessage('Frame', frame);
+    }
+
+
     sendPaused() {
         this.sendMessage('Paused');
     }
@@ -697,6 +702,8 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
                         this.sendSeek((+this.music_index / +this.music_count));
                     }
                     this.music_index = ((this.music_index + 1) | 0);
+
+                    this.sendFrame(this.music_index); // Para actualizaer el nro de frame GAM
 
                     // ==============================================================
                     // Si el puntero llegó al límite de frames totales de la canción

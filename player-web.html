@@ -67,12 +67,34 @@
                 <div class="grid">
                     <fieldset id="aymPlaybackEstatus">
                         <legend>Playback status</legend>
+
+                        <!-- 1. Estado del reproductor -->
+                        <div class="grid" style="margin-bottom: 5px;">
+                            <p id="aymStatusDisplay" style="margin-bottom: 0; font-weight: bold;">AYM Player is Off</p>
+                        </div>
+
+                        <!-- 2. Barra de Búsqueda / Timeline -->
+                        <div class="grid" style="margin-bottom: 2px;">
+                            <input id="aymSeek" type="range" min="0" value="0" style="margin-bottom: 0;">
+                        </div>
+
+                        <!-- 3. Contador de Frames (Debajo de la barra de búsqueda, discreto y a la derecha) -->
+                        <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 2px;">
+                            <small style="font-family: monospace; font-size: 0.72rem; color: #777; letter-spacing: 0.5px;">
+                                FRAME: <span id="aymCurrentFrame" style="color: #444; font-weight: bold;">0000</span> / <span id="aymTotalFrames">0000</span>
+                            </small>
+                        </div>
+
+
+
+                        <!--
                         <div class="grid">
                                 <p id="aymStatusDisplay">AYM Player is Off</p>
                             </div>
                         <div class="grid">
                             <input id="aymSeek" type="range">
                         </div>
+                        -->
                     </fieldset>
                 </div>
 
