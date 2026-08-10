@@ -319,6 +319,11 @@ export class AYM_PlayerModel {
         this.sendMessage('Play');
     }
 
+    sendStopFile() {
+        this.sendMessage('StopFile');
+    }
+
+
     sendPrev() {
         this.sendMessage('Prev');
     }

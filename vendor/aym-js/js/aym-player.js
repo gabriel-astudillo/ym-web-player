@@ -190,10 +190,12 @@ export class AYM_Player {
 
     async recvStopped() {
         this.view.setStopped();
+        this.view.highlightFrame(0); //para volver al inicio
     }
 
     async recvStoppedFile(){
         this.view.setStoppedFile();
+        this.view.highlightFrame(0); //para volver al inicio
     }
 
 
@@ -318,7 +320,10 @@ export class AYM_Player {
                     this.audioSource = 'external';
                     //this.view.enablePlay();
 
-                    // 5. Enviar al modelo para su inyección al AudioWorklet
+                    // 5. Se inyectan los registros decodificados en el visor visual
+                    this.view.populateFramesContainer(songData, nFrames);
+
+                    // 6. Enviar al modelo para su inyección al AudioWorklet
                     this.model.sendExternalTrack(this.externalMusic);
                     this.view.setTotalFrames(nFrames);
                     //console.log("onFileSelected OK...");
@@ -364,6 +369,16 @@ export class AYM_Player {
             console.error(error);
         }
     }
+
+    /////////////////////////
+    // Se llama al resaltado:
+    /////////////////////////
+    async recvFrame(nFrame) { 
+        this.view.updateCurrentFrame(nFrame);
+        this.view.highlightFrame(nFrame); // <--- NUEVO: Resalta el frame en la lista
+    }
+
+
 }
 
 // ---------------------------------------------------------------------------

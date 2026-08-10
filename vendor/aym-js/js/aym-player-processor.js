@@ -717,7 +717,7 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
                         }*/
 
                         // Opción simple: no sigue tocando
-                        this.recvStop();
+                        this.recvStopFile();
                     }
                 }
             }

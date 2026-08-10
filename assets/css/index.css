@@ -441,3 +441,19 @@ button.is-toggled {
 ::-webkit-scrollbar-thumb:hover {
     background: #071e20;
 }
+
+/* Resaltado del frame en reproducción */
+.ym-frame-row {
+    display: flex;
+    gap: 8px;
+    padding: 2px 4px;
+    border-bottom: 1px solid #222;
+    color: #a9ffb2;
+    white-space: nowrap;
+}
+
+.ym-frame-row.active-frame {
+    background-color: #00adb5 !important;
+    color: #ffffff !important;
+    font-weight: bold;
+}

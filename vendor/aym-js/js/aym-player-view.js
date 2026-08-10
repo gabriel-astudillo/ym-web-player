@@ -29,6 +29,8 @@ export class AYM_PlayerView {
         this.currentFrame = null;
         this.totalFrames  = null;
 
+        this.framesContainer = null;
+        this.activeFrameElement = null;
 
         this.aymPlay    = null;
         this.aymFilePlay = null; // Add GAM
@@ -139,6 +141,7 @@ export class AYM_PlayerView {
         this.bindStatusDisplay(); // Add GAM
         this.bindCurrentFrame();
         this.bindTotalFrames();
+        this.bindFramesViewer();
 
         //this.bindPrev();
         //this.bindNext();
@@ -382,6 +385,12 @@ export class AYM_PlayerView {
         });
     }
 
+    bindFramesViewer() {
+        if (this.framesContainer == null) {
+            this.framesContainer = $('#ym-frames-container', false);
+        }
+    }
+
     enableFilePlay() {
         AYM_Utils.enableElement(this.aymFilePlay);
     }
@@ -565,6 +574,12 @@ export class AYM_PlayerView {
     setStoppedFile(){
         this.disableFileStop();
         this.enableFilePlay();
+        this.resetFrameDisplay();
+        this.resetFramesViewer();
+    }
+
+    setPaused() {
+        this.enablePlay();
     }
 
 
@@ -792,6 +807,107 @@ export class AYM_PlayerView {
             //container.appendChild(lineBreak)
         });
     }
+
+    //////////////////////////////////////////////////////
+    // Llebar todos los frames de la canción decodificada
+    //////////////////////////////////////////////////////
+    populateFramesContainer(songData, nFrames, numRegisters = 14) {
+        if (!this.framesContainer) return;
+
+        this.framesContainer.innerHTML = '';
+        this.activeFrameElement = null;
+
+        const fragment = document.createDocumentFragment();
+
+        for (let frameIdx = 0; frameIdx < nFrames; frameIdx++) {
+            const row = document.createElement('div');
+            row.className = 'ym-frame-row';
+            row.id = `ym-frame-${frameIdx}`;
+
+            // Extraer los 14 registros de este frame
+            const start = frameIdx * numRegisters;
+            const chunk = songData.slice(start, start + numRegisters);
+
+            // Formatear a texto Hexadecimal (ej: 0x1E)
+            const hexRegisters = chunk
+                .map(b => "0x" + b.toString(16).toUpperCase().padStart(2, '0'))
+                .join(' ');
+
+            row.innerHTML = `<span style="color: #ffb2a9; min-width: 65px;">F#${String(frameIdx).padStart(4, '0')}</span> <span>${hexRegisters}</span>`;
+            fragment.appendChild(row);
+        }
+
+        this.framesContainer.appendChild(fragment);
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    // Resaltar y autodesplazar el scroll hacia el frame activo
+    ////////////////////////////////////////////////////////////////////////
+    highlightFrame(nFrame) {
+        if (!this.framesContainer) return;
+
+        // Quitar resaltado anterior
+        if (this.activeFrameElement) {
+            this.activeFrameElement.classList.remove('active-frame');
+        }
+
+        // Ubicar nuevo frame
+        const currentEl = document.getElementById(`ym-frame-${nFrame}`);
+        if (currentEl) {
+            currentEl.classList.add('active-frame');
+            this.activeFrameElement = currentEl;
+
+            // Desplazamiento automático (Auto-scroll suave dentro del div)
+            const containerTop = this.framesContainer.scrollTop;
+            const containerHeight = this.framesContainer.clientHeight;
+            const elemTop = currentEl.offsetTop - this.framesContainer.offsetTop;
+            const elemHeight = currentEl.offsetHeight;
+
+            if (elemTop < containerTop || elemTop + elemHeight > containerTop + containerHeight) {
+                this.framesContainer.scrollTop = elemTop - containerHeight / 2;
+            }
+        }
+    }
+
+    //////////////////////////////////////////////////////////////
+    // Resaltar y autodesplazar el scroll hacia el frame activo
+    //////////////////////////////////////////////////////////////
+    highlightFrame(nFrame) {
+        if (!this.framesContainer) return;
+
+        // Quitar resaltado anterior
+        if (this.activeFrameElement) {
+            this.activeFrameElement.classList.remove('active-frame');
+        }
+
+        // Ubicar nuevo frame
+        const currentEl = document.getElementById(`ym-frame-${nFrame}`);
+        if (currentEl) {
+            currentEl.classList.add('active-frame');
+            this.activeFrameElement = currentEl;
+
+            // Desplazamiento automático (Auto-scroll suave dentro del div)
+            const containerTop = this.framesContainer.scrollTop;
+            const containerHeight = this.framesContainer.clientHeight;
+            const elemTop = currentEl.offsetTop - this.framesContainer.offsetTop;
+            const elemHeight = currentEl.offsetHeight;
+
+            if (elemTop < containerTop || elemTop + elemHeight > containerTop + containerHeight) {
+                this.framesContainer.scrollTop = elemTop - containerHeight / 2;
+            }
+        }
+    }
+
+    ////////////////////////////////////////////////
+    // Limpiar visor al detener o cambiar canción
+    ////////////////////////////////////////////////
+    resetFramesViewer() {
+        if (this.framesContainer) {
+            this.framesContainer.innerHTML = '<span style="color: #888;">No track loaded. Select a YM file to inspect frames.</span>';
+            this.activeFrameElement = null;
+        }
+    }
+
 
 
     renderFFT() {
