@@ -357,7 +357,7 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
     }
 
     recvStopFile() {
-        this.chip_flags |= AYM_FLAG_RESET;
+        this.chip_flags |= AYM_FLAG_RESET
         this.music_index = -1;
         this.music_count = 0;
         this.music_ticks = 0;

@@ -809,7 +809,7 @@ export class AYM_PlayerView {
     }
 
     //////////////////////////////////////////////////////
-    // Llebar todos los frames de la canción decodificada
+    // Llenar todos los frames de la canción decodificada
     //////////////////////////////////////////////////////
     populateFramesContainer(songData, nFrames, numRegisters = 14) {
         if (!this.framesContainer) return;

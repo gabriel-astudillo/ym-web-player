@@ -28,6 +28,7 @@ export class AYM_Player {
         this.view  = new AYM_PlayerView(this);
         this.audioSource = 'internal';
         this.externalMusic = null; // Add GAM
+        this.mockFile = null;
     }
 
 
@@ -65,9 +66,14 @@ export class AYM_Player {
 
 
     async onClickFilePlay(){
-        if(this.externalMusic != null){
-            this.model.sendExternalTrack(this.externalMusic);
+        //if(this.externalMusic != null){
+        //    this.model.sendExternalTrack(this.externalMusic);
+        //}
+        if(this.mockFile != null){
+             this.onFileSelected(this.mockFile);
+             this.model.sendExternalTrack(this.externalMusic);
         }
+        
     }
 
     async onClickStop() {
@@ -282,6 +288,7 @@ export class AYM_Player {
     // Add GAM
     async onFileSelected(file) {
         try {
+            this.mockFile = file;;
             //this.view.setFileDisplay("Cargando y descompimiendo...");
             this.view.setStatusDisplay("Cargando y descomprimiendo...");
             
@@ -306,6 +313,7 @@ export class AYM_Player {
                         throw new Error("YM File corrupted");
                     }
 
+                    const songName = file.name.replace('.ym', '');
                     // 4. Construir la estructura estructurada estándar que el procesador entiende
                     this.externalMusic = {
                         title: file.name.replace('.ym', ''),
@@ -324,8 +332,10 @@ export class AYM_Player {
                     this.view.populateFramesContainer(songData, nFrames);
 
                     // 6. Enviar al modelo para su inyección al AudioWorklet
-                    this.model.sendExternalTrack(this.externalMusic);
+                    //this.model.sendExternalTrack(this.externalMusic);
+
                     this.view.setTotalFrames(nFrames);
+                    this.view.setStatusDisplay(`${songName}...OK`);
                     //console.log("onFileSelected OK...");
                 } catch (err) {
                     //this.view.setFileDisplay("Error de decodificación");
@@ -345,6 +355,7 @@ export class AYM_Player {
     //////////////////////////////////////////////////////////////
     // Add GAM
     async onHyperlinkFileSelected(fileUrl, songName) {
+        this.mockFile = null;
         try {
             this.view.setStatusDisplay(`Descargando: ${songName}...`);
             
@@ -357,11 +368,12 @@ export class AYM_Player {
             // 2. Extraemos el nombre del archivo real a partir de la URL
             const filename = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
             
-            // 3. TRUCO CLAVE: Creamos un objeto File real en memoria idéntico al del input file
-            const mockFile = new File([blob], filename, { type: "application/octet-stream" });
+            // 3. objeto File real en memoria idéntico al del input file
+            this.mockFile = new File([blob], filename, { type: "application/octet-stream" });
             
             // 4. Invocamos de forma idéntica a tu pipeline original pasándole nuestro archivo ficticio
-            await this.onFileSelected(mockFile);
+            await this.onFileSelected(this.mockFile);
+            this.view.setStatusDisplay(`${songName}...OK`);
             
             //this.view.setStatusDisplay(`Remoto: ${songName}`);
         } catch (error) {
