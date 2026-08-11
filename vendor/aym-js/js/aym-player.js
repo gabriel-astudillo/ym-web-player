@@ -196,12 +196,12 @@ export class AYM_Player {
 
     async recvStopped() {
         this.view.setStopped();
-        this.view.highlightFrame(0); //para volver al inicio
+        //this.view.highlightFrame(0); //para volver al inicio
     }
 
     async recvStoppedFile(){
         this.view.setStoppedFile();
-        this.view.highlightFrame(0); //para volver al inicio
+        //this.view.highlightFrame(0); //para volver al inicio
     }
 
 

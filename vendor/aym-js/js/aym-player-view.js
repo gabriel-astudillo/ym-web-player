@@ -575,7 +575,7 @@ export class AYM_PlayerView {
         this.disableFileStop();
         this.enableFilePlay();
         this.resetFrameDisplay();
-        this.resetFramesViewer();
+        //this.resetFramesViewer();
     }
 
     setPaused() {
@@ -846,33 +846,21 @@ export class AYM_PlayerView {
     highlightFrame(nFrame) {
         if (!this.framesContainer) return;
 
-        // Quitar resaltado anterior
-        if (this.activeFrameElement) {
-            this.activeFrameElement.classList.remove('active-frame');
-        }
-
-        // Ubicar nuevo frame
         const currentEl = document.getElementById(`ym-frame-${nFrame}`);
         if (currentEl) {
+            if (this.activeFrameElement) {
+                this.activeFrameElement.classList.remove('active-frame');
+            }
+
             currentEl.classList.add('active-frame');
             this.activeFrameElement = currentEl;
 
-            // Desplazamiento automático (Auto-scroll suave dentro del div)
-            const containerTop = this.framesContainer.scrollTop;
-            const containerHeight = this.framesContainer.clientHeight;
-            const elemTop = currentEl.offsetTop - this.framesContainer.offsetTop;
-            const elemHeight = currentEl.offsetHeight;
-
-            if (elemTop < containerTop || elemTop + elemHeight > containerTop + containerHeight) {
-                this.framesContainer.scrollTop = elemTop - containerHeight / 2;
-            }
+            // Mueve el nodo para que sea físicamente el primer hijo visible del contenedor
+            this.framesContainer.prepend(currentEl);
+            this.framesContainer.scrollTop = 0;
         }
     }
-
-    //////////////////////////////////////////////////////////////
-    // Resaltar y autodesplazar el scroll hacia el frame activo
-    //////////////////////////////////////////////////////////////
-    highlightFrame(nFrame) {
+    /*highlightFrame(nFrame) {
         if (!this.framesContainer) return;
 
         // Quitar resaltado anterior
@@ -896,7 +884,36 @@ export class AYM_PlayerView {
                 this.framesContainer.scrollTop = elemTop - containerHeight / 2;
             }
         }
-    }
+    }*/
+
+    //////////////////////////////////////////////////////////////
+    // Resaltar y autodesplazar el scroll hacia el frame activo
+    //////////////////////////////////////////////////////////////
+    /*highlightFrame(nFrame) {
+        if (!this.framesContainer) return;
+
+        // Quitar resaltado anterior
+        if (this.activeFrameElement) {
+            this.activeFrameElement.classList.remove('active-frame');
+        }
+
+        // Ubicar nuevo frame
+        const currentEl = document.getElementById(`ym-frame-${nFrame}`);
+        if (currentEl) {
+            currentEl.classList.add('active-frame');
+            this.activeFrameElement = currentEl;
+
+            // Desplazamiento automático (Auto-scroll suave dentro del div)
+            const containerTop = this.framesContainer.scrollTop;
+            const containerHeight = this.framesContainer.clientHeight;
+            const elemTop = currentEl.offsetTop - this.framesContainer.offsetTop;
+            const elemHeight = currentEl.offsetHeight;
+
+            if (elemTop < containerTop || elemTop + elemHeight > containerTop + containerHeight) {
+                this.framesContainer.scrollTop = elemTop - containerHeight / 2;
+            }
+        }
+    }*/
 
     ////////////////////////////////////////////////
     // Limpiar visor al detener o cambiar canción

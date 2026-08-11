@@ -442,16 +442,26 @@ button.is-toggled {
     background: #071e20;
 }
 
+/* Desplazamiento instantáneo y sin interpolación */
+#ym-frames-container {
+    scroll-behavior: auto !important; /* Desactiva animaciones de scroll que causan solapamiento visual */
+}
+
 /* Resaltado del frame en reproducción */
 .ym-frame-row {
     display: flex;
     gap: 8px;
     padding: 2px 4px;
     border-bottom: 1px solid #222;
-    color: #a9ffb2;
+    color: #888888; /* Color tenue por defecto para las líneas pasadas/futuras */
     white-space: nowrap;
+    box-sizing: border-box;
+    height: 24px; /* Altura fija para cálculo de scroll de alto rendimiento */
+    line-height: 20px;
+    font-size: 10px;
 }
 
+/* Estilo contrastado únicamente para la primera fila visible */
 .ym-frame-row.active-frame {
     background-color: #00adb5 !important;
     color: #ffffff !important;
