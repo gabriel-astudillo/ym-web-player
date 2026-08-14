@@ -17,6 +17,7 @@
 
 import { AYM_PlayerModel } from './aym-player-model.js';
 import { AYM_PlayerView  } from './aym-player-view.js';
+import { AYM_SerialAdapter } from './aym-serial-adapter.js';
 import { ChiptuneFile } from '/ChiptuneFile.js';
 // ---------------------------------------------------------------------------
 // AYM_Player
@@ -26,10 +27,47 @@ export class AYM_Player {
     constructor() {
         this.model = new AYM_PlayerModel(this);
         this.view  = new AYM_PlayerView(this);
+        this.serialAdapter = new AYM_SerialAdapter();
         this.audioSource = 'internal';
         this.externalMusic = null; // Add GAM
         this.mockFile = null;
     }
+
+    // Handler ejecutado al hacer clic en el botón de conexión serial
+    async onClickSerialConnect() {
+        try {
+            if (!this.serialAdapter.isConnected) {
+                this.view.setSerialStatus("Conectando...", false);
+                await this.serialAdapter.connect();
+                this.view.setSerialStatus("Serial: Conectado (115200)", true);
+            } else {
+                await this.serialAdapter.disconnect();
+                this.view.setSerialStatus("Serial: Desconectado", false);
+            }
+        } catch (err) {
+            console.error("Error en conexión Web Serial:", err);
+            this.view.setSerialStatus(`Serial: ${err.message}`, false);
+        }
+    }
+
+    // Al apagar el emulador, desconectar el puerto si está abierto
+    async onClickPower() {
+        if(this.model.isNotPowered()) { //[cite: 20]
+            await this.model.powerOn(); //[cite: 20]
+            await this.view.powerOn(); //[cite: 20]
+            this.model.sendRequestTrackList(); //[cite: 20]
+        }
+        else {
+            if (this.serialAdapter && this.serialAdapter.isConnected) {
+                await this.serialAdapter.disconnect();
+                this.view.setSerialStatus("Serial: Desconectado", false);
+            }
+            await this.view.powerOff(); //[cite: 20]
+            await this.model.powerOff(); //[cite: 20]
+        }
+    }
+
+    
 
 
     async onLoadWindow() {
@@ -182,9 +220,9 @@ export class AYM_Player {
         this.view.setSeekValue(seek);
     }
 
-    async recvFrame(nFrame) { 
-        this.view.updateCurrentFrame(nFrame);
-    }
+    //async recvFrame(nFrame) { 
+    //    this.view.updateCurrentFrame(nFrame);
+    //}
 
     async recvPlaying() {
         this.view.setPlaying();
@@ -385,10 +423,26 @@ export class AYM_Player {
     /////////////////////////
     // Se llama al resaltado:
     /////////////////////////
-    async recvFrame(nFrame) { 
+    /*async recvFrame(nFrame) { 
         this.view.updateCurrentFrame(nFrame);
         this.view.highlightFrame(nFrame); // <--- NUEVO: Resalta el frame en la lista
+    }*/
+
+    // Cada vez que llega el frame desde el AudioWorklet:
+    async recvFrame(nFrame) { 
+        this.view.updateCurrentFrame(nFrame); 
+        this.view.highlightFrame(nFrame); 
+
+        // NUEVO: Transmisión Serial directa al hardware Arduino
+        if (this.serialAdapter.isConnected && this.externalMusic && this.externalMusic.songData) {
+            const startIdx = nFrame * 14;
+            const currentFrameData = this.externalMusic.songData.slice(startIdx, startIdx + 14);
+            
+            // Envío no bloqueante
+            this.serialAdapter.sendFrame(currentFrameData);
+        }
     }
+
 
 
 }

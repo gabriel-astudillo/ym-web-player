@@ -32,6 +32,9 @@ export class AYM_PlayerView {
         this.framesContainer = null;
         this.activeFrameElement = null;
 
+        this.aymSerialConnect = null;
+        this.aymSerialStatus  = null;
+
         this.aymPlay    = null;
         this.aymFilePlay = null; // Add GAM
         this.aymStop    = null;
@@ -143,6 +146,8 @@ export class AYM_PlayerView {
         this.bindTotalFrames();
         this.bindFramesViewer();
 
+        this.bindSerialControls();
+
         //this.bindPrev();
         //this.bindNext();
         this.bindSeek();
@@ -171,17 +176,31 @@ export class AYM_PlayerView {
         }
     }
 
-   bindCurrentFrame(){
+    bindCurrentFrame(){
         if(this.currentFrame == null) {
             this.currentFrame = $('#aymCurrentFrame');
         }
-   }
+    }
     
-   bindTotalFrames(){
+    bindTotalFrames(){
         if(this.totalFrames == null) {
             this.totalFrames = $('#aymTotalFrames');   
         } 
-   }
+    }
+
+    bindSerialControls() {
+        if (this.aymSerialConnect == null) {
+            this.aymSerialConnect = $('#aymSerialConnect', false);
+            if (this.aymSerialConnect) {
+                this.aymSerialConnect.addEventListener('click', async () => {
+                    await this.controller.onClickSerialConnect();
+                });
+            }
+        }
+        if (this.aymSerialStatus == null) {
+            this.aymSerialStatus = $('#aymSerialStatus', false);
+        }
+    }
 
     bindFilePlay() {
         if(this.aymFilePlay == null) {
@@ -701,7 +720,18 @@ export class AYM_PlayerView {
         }
     }
 
-    
+    setSerialStatus(message, isConnected = false) {
+        AYM_Utils.setInnerText(this.aymSerialStatus, message);
+        if (this.aymSerialConnect) {
+            if (isConnected) {
+                this.aymSerialConnect.classList.add('is-toggled');
+                this.aymSerialConnect.innerHTML = '<i class="fa-solid fa-plug-circle-check"></i><br>Disconnect';
+            } else {
+                this.aymSerialConnect.classList.remove('is-toggled');
+                this.aymSerialConnect.innerHTML = '<i class="fa-solid fa-plug"></i><br>Connect Serial';
+            }
+        }
+    }
 
 
     setSeekValue(seek) {
