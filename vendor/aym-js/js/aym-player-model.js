@@ -354,7 +354,7 @@ export class AYM_PlayerModel {
         // Mandamos el comando personalizado 'PlayExternal' con la estructura completa
         this.sendMessage('PlayExternal', musicData);
 
-        console.log("sendMessage OK...");
+        //console.log("sendMessage OK...");
     }
 }
 

@@ -123,9 +123,7 @@ export class AYM_Player {
     }
 
     async onClickFileStop(){
-        if(this.mockFile != null){
-            this.model.sendStopFile();
-        }
+        this.model.sendStopFile();
     }
 
 
@@ -402,8 +400,10 @@ export class AYM_Player {
     //////////////////////////////////////////////////////////////
     // Add GAM
     async onHyperlinkFileSelected(fileUrl, songName) {
-        this.mockFile = null;
-        this.onClickFileStop();
+        if(this.mockFile != null){
+            this.onClickFileStop();
+        }
+        
         try {
             this.view.setStatusDisplay(`Descargando: ${songName}...`);
             
