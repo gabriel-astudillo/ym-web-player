@@ -18,6 +18,8 @@
 import { AYM_PlayerModel } from './aym-player-model.js';
 import { AYM_PlayerView  } from './aym-player-view.js';
 import { AYM_SerialAdapter } from './aym-serial-adapter.js';
+//import { AYM_HardwarePresets } from './aym-hw-presets.js';
+import { AYM_HardwarePresetManager } from './aym-hw-presets.js';
 import { ChiptuneFile } from '/ChiptuneFile.js';
 // ---------------------------------------------------------------------------
 // AYM_Player
@@ -31,6 +33,8 @@ export class AYM_Player {
         this.audioSource = 'internal';
         this.externalMusic = null; // Add GAM
         this.mockFile = null;
+
+        this.presetManager = new AYM_HardwarePresetManager(this.serialAdapter, this.view);
     }
 
     // Handler ejecutado al hacer clic en el botón de conexión serial
@@ -119,7 +123,9 @@ export class AYM_Player {
     }
 
     async onClickFileStop(){
-        this.model.sendStopFile();
+        if(this.mockFile != null){
+            this.model.sendStopFile();
+        }
     }
 
 
@@ -240,6 +246,9 @@ export class AYM_Player {
     async recvStoppedFile(){
         this.view.setStoppedFile();
         //this.view.highlightFrame(0); //para volver al inicio
+        if (this.serialAdapter.isConnected && this.externalMusic && this.externalMusic.songData) {
+            this.playHardwarePreset('muteAll');
+        }
     }
 
 
@@ -394,6 +403,7 @@ export class AYM_Player {
     // Add GAM
     async onHyperlinkFileSelected(fileUrl, songName) {
         this.mockFile = null;
+        this.onClickFileStop();
         try {
             this.view.setStatusDisplay(`Descargando: ${songName}...`);
             
@@ -443,7 +453,94 @@ export class AYM_Player {
         }
     }
 
+    async playHardwarePreset(presetKey, loop = false) {
+        await this.presetManager.play(presetKey, loop);
+    }
 
+    async stopHardwarePreset() {
+        await this.presetManager.stop(true);
+    }
+
+    /*
+    async playHardwarePreset(presetKey, loop = false, refreshStatus = false) {
+        if (!this.serialAdapter.isConnected) {
+            this.view.setStatusDisplay("Error: Serial no conectado");
+            return;
+        }
+
+        const preset = AYM_HardwarePresets[presetKey];
+        if (!preset || !preset.songData || preset.songData.length === 0) {
+            this.view.setStatusDisplay("Error: Preset inválido o vacío");
+            return;
+        }
+
+        // Si ya hay un preset corriendo, lo detenemos primero
+        this.stopHardwarePreset(false);
+
+        const totalFrames = preset.nFrames;
+        const intervalMs = Math.floor(1000 / (preset.framerate || 50)); // ~20 ms
+
+        // Sincronizar visor gráfico de frames en la UI
+        if(refreshStatus){
+            this.view.populateFramesContainer(preset.songData, totalFrames);
+            this.view.setTotalFrames(totalFrames);
+            this.view.setStatusDisplay(`HW: ${preset.title} (${totalFrames} frames)`);
+        }
+        
+
+        this.currentHwFrame = 0;
+        this.isHwPlaying = true;
+
+        this.hwPlaybackInterval = setInterval(async () => {
+            if (!this.isHwPlaying || !this.serialAdapter.isConnected) {
+                this.stopHardwarePreset();
+                return;
+            }
+
+            // Fin de la secuencia de frames
+            if (this.currentHwFrame >= totalFrames) {
+                if (loop) {
+                    this.currentHwFrame = 0; // Reiniciar en bucle
+                } else {
+                    this.stopHardwarePreset(true);
+                    return;
+                }
+            }
+
+            // Extraer el bloque de 14 bytes del frame actual
+            const startIdx = this.currentHwFrame * 14;
+            const frameBytes = preset.songData.slice(startIdx, startIdx + 14);
+
+            // Transmisión directa hacia el puerto Serial
+            await this.serialAdapter.sendFrame(frameBytes);
+
+            // Actualización visual en pantalla (sin sonido en altavoces)
+            this.view.updateCurrentFrame(this.currentHwFrame);
+            this.view.highlightFrame(this.currentHwFrame);
+
+            this.currentHwFrame++;
+        }, intervalMs);
+    }
+
+    async stopHardwarePreset(sendMuteFrame = true, refreshStatus = false) {
+        if (this.hwPlaybackInterval) {
+            clearInterval(this.hwPlaybackInterval);
+            this.hwPlaybackInterval = null;
+        }
+
+        this.isHwPlaying = false;
+
+        // Enviar frame de silencio total al hardware para evitar notas pegadas
+        if (sendMuteFrame && this.serialAdapter.isConnected) {
+            const muteBytes = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+            await this.serialAdapter.sendFrame(muteBytes);
+        }
+
+        if(refreshStatus){
+            this.view.setStatusDisplay("HW: Preset finalizado/detenido");
+        }
+        
+    }*/
 
 }
 

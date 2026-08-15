@@ -1,0 +1,207 @@
+@startuml
+!theme plain
+skinparam BoxPadding 10
+skinparam ParticipantPadding 8
+autonumber
+
+actor "Usuario / UI" as User
+participant "AYM_PlayerView\n(View)" as View
+participant "AYM_Player\n(Controller)" as Controller
+participant "AYM_SerialAdapter\n(Web Serial API)" as Serial
+participant "ChiptuneFile\n(Decoder / LHA)" as Decoder
+participant "AYM_PlayerModel\n(Model)" as Model
+participant "AYM_PlayerProcessor\n(AudioWorklet)" as Processor
+participant "AYM_Emulator\n(Audio Core)" as Emulator
+collections "Arduino / AY-3-8910\n(Hardware)" as Hardware
+
+== 1. Conexión Serial con el Hardware ==
+
+User -> View : Click en #aymSerialConnect [Connect Serial]
+activate View
+View -> Controller : onClickSerialConnect()
+activate Controller
+
+alt Puerto no conectado
+    Controller -> View : setSerialStatus("Conectando...", false)
+    Controller -> Serial : connect()
+    activate Serial
+    Serial -> Serial : navigator.serial.requestPort()
+    Serial -> Serial : port.open({ baudRate: 115200 })
+    Serial -> Serial : port.writable.getWriter()
+    Serial --> Controller : isConnected = true
+    deactivate Serial
+    Controller -> View : setSerialStatus("Serial: Conectado (115200)", true)
+else Puerto ya conectado
+    Controller -> Serial : disconnect()
+    activate Serial
+    Serial -> Serial : writer.close() & port.close()
+    Serial --> Controller : isConnected = false
+    deactivate Serial
+    Controller -> View : setSerialStatus("Serial: Desconectado", false)
+end
+deactivate Controller
+deactivate View
+
+== 2. Encendido del Emulador y Carga de Canción ==
+
+User -> View : Click en #aymPower [Power]
+activate View
+View -> Controller : onClickPower()
+activate Controller
+Controller -> Model : isNotPowered()
+activate Model
+Model --> Controller : true
+deactivate Model
+
+Controller -> Model : powerOn()
+activate Model
+Model -> Model : createContext(), createWorklet(), createAnalyser(), createGain()
+Model -> Processor : postMessage({ message_type: 'State' })
+Model --> Controller
+deactivate Model
+
+Controller -> View : powerOn()
+Controller -> Model : sendRequestTrackList()
+deactivate Controller
+deactivate View
+
+User -> View : Selecciona archivo .ym (#file-picker o .ym-link)
+activate View
+View -> Controller : onFileSelected(file) / onHyperlinkFileSelected()
+activate Controller
+Controller -> View : setStatusDisplay("Cargando y descomprimiendo...")
+
+Controller -> Decoder : new ChiptuneFile() & loadFile(file)
+activate Decoder
+Decoder -> Decoder : detectFormat(), decompressLh5File_GAM() / decodeYmFile()
+Decoder -> Decoder : Deinterleave & reconstrucción de frames
+Decoder --> Controller : getData() -> [songData, nFrames, interleaved]
+deactivate Decoder
+
+Controller -> View : populateFramesContainer(songData, nFrames)
+activate View
+View -> View : Genera nodos HTML en #ym-frames-container
+deactivate View
+
+Controller -> View : setTotalFrames(nFrames)
+Controller -> View : setStatusDisplay("NombrePista...OK")
+deactivate Controller
+deactivate View
+
+== 3. Inicio de Reproducción ==
+
+User -> View : Click en #aymFilePlay [Play]
+activate View
+View -> Controller : onClickFilePlay()
+activate Controller
+Controller -> Controller : onFileSelected(mockFile)
+Controller -> Model : sendExternalTrack(externalMusic)
+activate Model
+Model -> Processor : postMessage({ message_type: 'PlayExternal', message_data: extMusic })
+deactivate Model
+deactivate Controller
+deactivate View
+
+activate Processor
+Processor -> Processor : Configura frames, framerate (50 Hz) y reloj
+Processor -> Emulator : reset() & set_type_ym()/set_type_ay()
+activate Emulator
+deactivate Emulator
+Processor -> Model : postMessage({ message_type: 'PlayingFile' })
+activate Model
+Model -> Controller : recvPlayingFile()
+activate Controller
+Controller -> View : setPlayingFile()
+deactivate Controller
+deactivate Model
+
+== 4. Ciclo de Emulación y Salida Dual (Audio + Hardware Serial) ==
+
+loop Cada bloque de audio (AudioWorklet process @ 50 Hz por Frame)
+    Processor -> Processor : clockChip()
+    
+    loop Para cada muestra de audio
+        Processor -> Emulator : clock()
+        activate Emulator
+        Emulator -> Emulator : fixup_tones() & Generadores
+        deactivate Emulator
+        
+        opt Tick de música alcanzado (clockMusic)
+            Processor -> Processor : Extrae frame actual (14 registros)
+            loop Registro 0 a 13
+                Processor -> Emulator : set_register_index(i)
+                Processor -> Emulator : set_register_value(value)
+            end
+            
+            Processor -> Model : postMessage({ message_type: 'Frame', message_data: music_index })
+            activate Model
+            Model -> Controller : recvFrame(nFrame)
+            activate Controller
+            
+            Controller -> View : updateCurrentFrame(nFrame)
+            Controller -> View : highlightFrame(nFrame)
+            activate View
+            View -> View : Prepend nodo activo al inicio (#ym-frames-container)
+            deactivate View
+            
+            opt serialAdapter.isConnected == true
+                Controller -> Controller : currentFrameData = songData.slice(nFrame*14, 14)
+                Controller -> Serial : sendFrame(currentFrameData)
+                activate Serial
+                Serial -> Serial : Empaqueta [0xFF, 0x5A, 14 bytes, Checksum] (17 bytes)
+                Serial -> Hardware : writer.write(packet)
+                activate Hardware
+                Hardware -> Hardware : Verifica Checksum y escribe en registros AY-3-8910
+                deactivate Hardware
+                deactivate Serial
+            end
+            
+            deactivate Controller
+            deactivate Model
+        end
+    end
+    
+    Processor -> Processor : mixStereo() & asignación a salidas analógicas WebAudio
+end
+
+== 5. Detención de Reproducción y Desconexión ==
+
+User -> View : Click en #aymFileStop [Stop]
+activate View
+View -> Controller : onClickFileStop()
+activate Controller
+Controller -> Model : sendStopFile()
+activate Model
+Model -> Processor : postMessage({ message_type: 'StopFile' })
+deactivate Model
+deactivate Controller
+
+Processor -> Processor : chip_flags |= RESET, music_index = -1
+Processor -> Model : postMessage({ message_type: 'StoppedFile' })
+activate Model
+Model -> Controller : recvStoppedFile()
+activate Controller
+Controller -> View : setStoppedFile()
+activate View
+View -> View : resetFrameDisplay()
+deactivate View
+deactivate Controller
+deactivate Model
+deactivate View
+
+opt Usuario apaga el sistema (Power Off)
+    User -> View : Click en #aymPower [Power]
+    activate View
+    View -> Controller : onClickPower()
+    activate Controller
+    opt serialAdapter.isConnected == true
+        Controller -> Serial : disconnect()
+        Controller -> View : setSerialStatus("Serial: Desconectado", false)
+    end
+    Controller -> View : powerOff()
+    Controller -> Model : powerOff()
+    deactivate Controller
+    deactivate View
+end
+
+@enduml
