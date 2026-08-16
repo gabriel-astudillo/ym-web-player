@@ -1,11 +1,16 @@
 // assets/js/aym-serial-adapter.js
+import { AYM_HardwarePresetManager } from './aym-hw-presets.js';
 
 export class AYM_SerialAdapter {
-    constructor() {
+    constructor(controller) {
+        this.controller = controller;
         this.port = null;
         this.writer = null;
         this.isConnected = false;
         this.baudRate = 115200;
+
+        // Callback para notificar a observadores externos
+        this.onDisconnect = null;
     }
 
     async connect() {
@@ -22,6 +27,7 @@ export class AYM_SerialAdapter {
     }
 
     async disconnect() {
+        
         if (this.writer) {
             await this.writer.close();
             this.writer = null;
@@ -31,6 +37,16 @@ export class AYM_SerialAdapter {
             this.port = null;
         }
         this.isConnected = false;
+
+        
+    }
+
+    handleDisconnection() {
+        this.isConnected = false;
+        // Invocamos el callback si existe
+        if (typeof this.onDisconnect === 'function') {
+            this.onDisconnect();
+        }
     }
 
     /**

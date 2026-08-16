@@ -18,7 +18,6 @@
 import { AYM_PlayerModel } from './aym-player-model.js';
 import { AYM_PlayerView  } from './aym-player-view.js';
 import { AYM_SerialAdapter } from './aym-serial-adapter.js';
-//import { AYM_HardwarePresets } from './aym-hw-presets.js';
 import { AYM_HardwarePresetManager } from './aym-hw-presets.js';
 import { ChiptuneFile } from '/ChiptuneFile.js';
 // ---------------------------------------------------------------------------
@@ -29,12 +28,13 @@ export class AYM_Player {
     constructor() {
         this.model = new AYM_PlayerModel(this);
         this.view  = new AYM_PlayerView(this);
-        this.serialAdapter = new AYM_SerialAdapter();
+        this.serialAdapter = new AYM_SerialAdapter(this);
         this.audioSource = 'internal';
         this.externalMusic = null; // Add GAM
         this.mockFile = null;
 
         this.presetManager = new AYM_HardwarePresetManager(this.serialAdapter, this.view);
+
     }
 
     // Handler ejecutado al hacer clic en el botón de conexión serial
@@ -45,6 +45,7 @@ export class AYM_Player {
                 await this.serialAdapter.connect();
                 this.view.setSerialStatus("Serial: Conectado (115200)", true);
             } else {
+                await this.presetManager.stop();
                 await this.serialAdapter.disconnect();
                 this.view.setSerialStatus("Serial: Desconectado", false);
             }
