@@ -48,12 +48,10 @@
                         
                     </div>
                 </fieldset>
-
-                
         
             </div>
             
-            <!-- Columna Izquierda-->
+            <!-- Columna Central-->
             <div style="flex: 0 0 auto; width:300px;">
                 <div class="grid">                  
                     <fieldset id="aymStorageControls">
@@ -73,6 +71,7 @@
 
                     </fieldset>
                 </div> 
+
                 <div class="grid">
                     <fieldset id="aymPlaybackEstatus">
                         <legend>Playback status</legend>
@@ -94,19 +93,54 @@
                             </small>
                         </div>
 
-
-
-                        <!--
-                        <div class="grid">
-                                <p id="aymStatusDisplay">AYM Player is Off</p>
-                            </div>
-                        <div class="grid">
-                            <input id="aymSeek" type="range">
-                        </div>
-                        -->
                     </fieldset>
                 </div>
 
+                <div class="grid">
+                    <fieldset id="aymPresetsControls" >
+                        <legend>Presets</legend>
+                        
+                            <div class="grid" style="margin-bottom: 5px;">
+                                <button id="aymHwPreset0" style="width:65px; font-size: 0.6rem;"><i class="fa-solid fa-a"></i></button>
+                                <button id="aymHwPreset1" style="width:65px; font-size: 0.6rem;"><i class="fa-solid fa-b"></i></button>
+                                <button id="aymHwPreset2" style="width:65px; font-size: 0.6rem;"><i class="fa-solid fa-c"></i></button>
+                                <button id="aymHwPreset3" style="width:65px; font-size: 0.6rem;"><i class="fa-solid fa-d"></i></button>
+                            </div>
+
+                            <div class="grid" style="margin-bottom: 5px;">
+                                <button id="aymHwPreset4" style="width:65px; font-size: 0.6rem;"><i class="fa-solid fa-e"></i></button>
+                                <button id="aymHwPreset5" style="width:65px; font-size: 0.6rem;"><i class="fa-solid fa-f"></i></button>
+                                <button id="aymHwPreset6" style="width:65px; font-size: 0.6rem;"><i class="fa-solid fa-h"></i></button>
+                                <button id="aymHwPreset7" style="width:65px; font-size: 0.6rem;"><i class="fa-solid fa-i"></i></button>
+                            </div>
+                           
+
+                    </fieldset>
+
+                </div>
+
+            </div>
+
+             <!-- Columna Derecha-->
+            <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 0px;">
+                <div style="flex: 0 0 auto;; width: 620px;">   
+                    <fieldset>
+                        <legend>YM files explorer</legend>
+                        <small>
+                        <div class="ym-tracks-container">
+                            <!-- Rellenado a través de la función AYM_Player::loadFromStaticJson() -->
+                        </div>
+                        </small>
+                    </fieldset> 
+
+                    <!--Contenedor para visualizar los frames decodificados -->
+                    <fieldset id="aymFramesViewer" style="margin-top: 10px;">
+                        <legend>Frame Registers (AY-3-8910)</legend>
+                        <div id="ym-frames-container" style="scroll-behavior: auto !important;height: 180px; overflow-y: auto; overflow-x: auto; background-color: #111116; border: 1px solid var(--form-element-border-color); border-radius: 5px; padding: 5px; font-family: monospace; font-size: 0.75rem;">
+                            <span style="color: #888;">No track loaded. Select a YM file to inspect frames.</span>
+                        </div>
+                    </fieldset>
+                </div>
             </div>
 
             
@@ -114,26 +148,7 @@
         </div>
 
     
-        <div style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 0px;">
-            <div style="flex: 0 0 auto;; width: 620px;">   
-                <fieldset>
-                    <legend>YM files explorer</legend>
-                    <small>
-                    <div class="ym-tracks-container">
-                        <!-- Rellenado a través de la función AYM_Player::loadFromStaticJson() -->
-                    </div>
-                    </small>
-                </fieldset> 
-
-                <!--Contenedor para visualizar los frames decodificados -->
-                <fieldset id="aymFramesViewer" style="margin-top: 10px;">
-                    <legend>Frame Registers (AY-3-8910)</legend>
-                    <div id="ym-frames-container" style="scroll-behavior: auto !important;height: 180px; overflow-y: auto; overflow-x: auto; background-color: #111116; border: 1px solid var(--form-element-border-color); border-radius: 5px; padding: 5px; font-family: monospace; font-size: 0.75rem;">
-                        <span style="color: #888;">No track loaded. Select a YM file to inspect frames.</span>
-                    </div>
-                </fieldset>
-            </div>
-        </div>
+       
         
                 
 

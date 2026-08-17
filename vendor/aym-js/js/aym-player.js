@@ -33,7 +33,7 @@ export class AYM_Player {
         this.externalMusic = null; // Add GAM
         this.mockFile = null;
 
-        this.presetManager = new AYM_HardwarePresetManager(this.serialAdapter, this.view);
+        this.presetManager = new AYM_HardwarePresetManager(this);
 
     }
 
@@ -454,12 +454,50 @@ export class AYM_Player {
         }
     }
 
+
     async playHardwarePreset(presetKey, loop = false) {
         await this.presetManager.play(presetKey, loop);
     }
 
+    async playHwAndEmu(presetKey){
+        await this.presetManager.playHwAndEmu(presetKey);
+    }
+
     async stopHardwarePreset() {
         await this.presetManager.stop(true);
+    }
+
+    async onClickHwPresetA() {
+        //this.playHardwarePreset('presetA');
+        await this.playHwAndEmu('presetA');
+    }
+
+    async onClickHwPresetB() {
+        await this.playHwAndEmu('laserSfx');
+    }
+
+    async onClickHwPresetC() {
+        await this.playHwAndEmu('sfxExplosion');
+    }  
+
+    async onClickHwPresetD() {
+        await this.playHwAndEmu('sfxJump');
+    }
+
+    async onClickHwPresetE() {
+        await this.playHwAndEmu('sfxCrashCymbal');
+    }
+
+    async onClickHwPresetF() {
+        await this.playHwAndEmu('presetF');
+    }
+
+    async onClickHwPresetG() {
+        await this.playHwAndEmu('presetG');
+    }
+
+    async onClickHwPresetH() {
+        await this.playHwAndEmu('presetH');
     }
 
 }

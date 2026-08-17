@@ -67,6 +67,8 @@ export class AYM_PlayerView {
         this.aymCanvasCh2  = null;
         this.aymContextCh2 = null;
 
+        this.aymHwPresets= new Array(8).fill(null);
+
         this.aymTimeCanvas = null;
         this.aymTimeContext = null;
         this.aymTimeCanvasCh0 = null;
@@ -102,6 +104,7 @@ export class AYM_PlayerView {
         this.enableOnlyB();
         this.enableOnlyC();
 
+        this.enablebHwPresets();
 
         this.enableReset();
         this.enablePause();
@@ -126,6 +129,8 @@ export class AYM_PlayerView {
         this.disableOnlyB();
         this.disableOnlyC();
 
+        this.disablebHwPresets();
+
         //this.disablePower();
 
         this.disableSeek();
@@ -147,6 +152,8 @@ export class AYM_PlayerView {
         this.bindFramesViewer();
 
         this.bindSerialControls();
+
+        this.bindHwPresets();
 
         //this.bindPrev();
         //this.bindNext();
@@ -199,6 +206,31 @@ export class AYM_PlayerView {
         }
         if (this.aymSerialStatus == null) {
             this.aymSerialStatus = $('#aymSerialStatus', false);
+        }
+    }
+
+    bindHwPresets(){
+        //colocar arreglo para asociar numero de boton con una funcion determinada
+        const hwPresets = [
+            this.controller.onClickHwPresetA.bind(this.controller),
+            this.controller.onClickHwPresetB.bind(this.controller),
+            this.controller.onClickHwPresetC.bind(this.controller),
+            this.controller.onClickHwPresetD.bind(this.controller),
+            this.controller.onClickHwPresetE.bind(this.controller),
+            this.controller.onClickHwPresetF.bind(this.controller),
+            this.controller.onClickHwPresetG.bind(this.controller),
+            this.controller.onClickHwPresetH.bind(this.controller)
+        ];
+        for (let i = 0; i < this.aymHwPresets.length; i++) {
+            if (this.aymHwPresets[i] == null) {
+                this.aymHwPresets[i] = $('#aymHwPreset' + i);
+                if (this.aymHwPresets[i]) {
+                    this.aymHwPresets[i].disabled = true;
+                    this.aymHwPresets[i].addEventListener('click', async () => {
+                        await hwPresets[i]();
+                    });
+                }
+            }
         }
     }
 
@@ -424,6 +456,18 @@ export class AYM_PlayerView {
 
     disableStatusDisplay() {
         AYM_Utils.disableElement(this.aymStatusDisplay);
+    }
+
+    enablebHwPresets(){
+        for (let i = 0; i < this.aymHwPresets.length; i++) {
+            AYM_Utils.enableElement(this.aymHwPresets[i]);
+        }
+    }
+
+    disableHwPresets(){
+        for (let i = 0; i < this.aymHwPresets.length; i++) {
+            AYM_Utils.disableElement(this.aymHwPresets[i]);
+        }
     }
 
     enableStop() {

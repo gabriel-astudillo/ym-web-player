@@ -8,7 +8,7 @@ const YM_SILENT = new Uint8Array([
 
 export const AYM_HardwarePresetsData = {
     // Ejemplo: Tono de prueba 440 Hz en Canal A
-    testToneA: {
+    presetA: {
         title: "HW Test 440Hz",
         nFrames: 50, // 1 segundo de duración a 50 Hz
         // Generamos 50 frames idénticos
@@ -67,23 +67,132 @@ export const AYM_HardwarePresetsData = {
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         ]
     },
+
+    // Efecto de Explosión: Ruido blanco descendente con decaimiento de volumen
+    sfxExplosion: {
+        title: "SFX Explosion (Noise)",
+        framerate: 50,
+        nFrames: 6,
+        songData: [
+            // Frame 0: Ruido agudo (Periodo 4), solo ruido en Canal A, Volumen 15
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x37, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 1: Ruido medio (Periodo 10), Volumen 13
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A, 0x37, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 2: Ruido grave (Periodo 18), Volumen 10
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x37, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 3: Ruido muy grave (Periodo 26), Volumen 7
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1A, 0x37, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 4: Desvanecimiento final (Periodo 31), Volumen 3
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1F, 0x37, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 5: Silencio
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        ]
+    },
+
+    // Efecto Salto Retro (8-bit Jump): Barrido ascendente rápido de frecuencia en Canal A
+    sfxJump: {
+        title: "SFX 8-Bit Jump",
+        framerate: 50,
+        nFrames: 5,
+        songData: [
+            // Frame 0: Tono base medio (~180 Hz, Periodo 0x0280), Volumen 15
+            0x80, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 1: Sube frecuencia (Periodo 0x01E0)
+            0xE0, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 2: Sube frecuencia (Periodo 0x0140)
+            0x40, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 3: Agudo final (Periodo 0x00A0), Volumen 8
+            0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 4: Silencio
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        ]
+    },
+
+    // 2. Platillo Abierto / Crash (Open Cymbal) - Decaimiento metálico largo (8 frames @ 50 Hz = 160 ms)
+    sfxCrashCymbal: {
+        title: "SFX Crash Cymbal",
+        framerate: 50,
+        nFrames: 8,
+        songData: [
+            // Frame 0: Tono muy agudo (R0=0x18) + Ruido fino (R6=0x01), Mixer Tono+Ruido en A (R7=0x36), Vol 15
+            0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x36, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 1: Solo ruido agudo, Volumen 13
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x37, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 2: Volumen 11
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x37, 0x0B, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 3: Volumen 9
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x37, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 4: Volumen 7
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x37, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 5: Volumen 5
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x37, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 6: Volumen 2 (cola final)
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x37, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
+            // Frame 7: Silencio
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        ]
+    },
+
+
+
+
 };
 
 /**
  * Metodos que permiten enviar trozos de datos, que se llaman presets
- * Hay métodos de prueba que utilizar el emular, otros que envían los datos
+ * Hay métodos de prueba que utilizar el emulador, otros que envían los datos
  * sólo al hw.  
  * */ 
+
+
 export class AYM_HardwarePresetManager {
-    constructor(serialAdapter, view) {
-        this.serialAdapter = serialAdapter;
-        this.view = view;
+    //constructor(serialAdapter, view, model) {
+    constructor(player) {
+        //this.serialAdapter = serialAdapter;
+        //this.view = view;
+        //this.model = model;
+
+        this.player = player;
+        this.serialAdapter = player.serialAdapter;
+        this.view = player.view;
+        this.model = player.model;
+
+
         this.presets = AYM_HardwarePresetsData;
 
         this.hwTimer = null;
         this.hwPlaybackInterval = null;
         this.currentHwFrame = 0;
         this.isHwPlaying = false;
+    }
+
+    /**
+     * 
+     * @param {*} presetKey 
+     * @returns 
+     */
+    playHwAndEmu(presetKey) {
+        const preset = this.presets[presetKey];
+        if (!preset) return;
+
+        // 1. Empaquetar con la estructura esperada por el reproductor
+        this.player.externalMusic = {
+            title: preset.title,
+            type: 'YM',
+            frames: preset.nFrames,
+            interleaved: false,
+            songData: preset.songData
+        };
+
+        this.player.audioSource = 'external';
+
+        // 2. Poblar el visor de frames en la UI
+        this.view.populateFramesContainer(preset.songData, preset.nFrames);
+        this.view.setTotalFrames(preset.nFrames);
+        this.view.setStatusDisplay(`Preset: ${preset.title}`);
+
+        // 3. Si quieres ejecutarlo directamente en el emulador y por puerto serial:
+        this.model.sendExternalTrack(this.player.externalMusic);
     }
 
     /**
@@ -97,7 +206,7 @@ export class AYM_HardwarePresetManager {
             return;
         }
 
-        const preset = AYM_HardwarePresets[presetKey];
+        const preset = this.presets[presetKey];
         if (!preset) return;
 
         // 2. Detener cualquier transmisión serial previa
