@@ -29,7 +29,7 @@ export class AYM_Player {
         this.model = new AYM_PlayerModel(this);
         this.view  = new AYM_PlayerView(this);
         this.serialAdapter = new AYM_SerialAdapter(this);
-        this.audioSource = 'internal';
+        //this.audioSource = 'internal';
         this.externalMusic = null; // Add GAM
         this.mockFile = null;
 
@@ -129,12 +129,12 @@ export class AYM_Player {
 
 
     async onClickPrev() {
-        this.audioSource = 'internal';
+        //this.audioSource = 'internal';
         this.model.sendPrev();
     }
 
     async onClickNext() {
-        this.audioSource = 'internal';
+        //this.audioSource = 'internal';
         this.model.sendNext();
     }
 
@@ -315,14 +315,6 @@ export class AYM_Player {
         this.view.unSetOnlyC();
     }
 
-
-    /////////////////////////////////////////////////////////////////////
-    // Add GAM
-    /*async onSelectTrack(index) {
-        this.audioSource = 'internal';
-        this.model.sendSelectTrack(index);
-    }*/
-
     /////////////////////////////////////////////////////////////////////
     // Add GAM
     async recvTrackList(trackList) {
@@ -371,7 +363,7 @@ export class AYM_Player {
                     };
 
                     // Cambiamos el origen antes de enviar al modelo
-                    this.audioSource = 'external';
+                    //this.audioSource = 'external';
                     //this.view.enablePlay();
 
                     // 5. Se inyectan los registros decodificados en el visor visual

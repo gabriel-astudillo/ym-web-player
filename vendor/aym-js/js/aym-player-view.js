@@ -430,7 +430,7 @@ export class AYM_PlayerView {
                 const songName = event.target.innerText;
                 
                 // 3. Cambiamos el contexto de origen y llamamos al controlador pasándole los datos
-                this.controller.audioSource = 'external';
+                //this.controller.audioSource = 'external';
                 await this.controller.onHyperlinkFileSelected(fileUrl, songName);
             });
         });
@@ -863,7 +863,7 @@ export class AYM_PlayerView {
             link.addEventListener('click', async (event) => {
                 event.preventDefault(); // Detiene la navegación por defecto del navegador
                 
-                this.controller.audioSource = 'external';
+                //this.controller.audioSource = 'external';
                 await this.controller.onHyperlinkFileSelected(track.url, track.name);
             });
 
@@ -871,7 +871,7 @@ export class AYM_PlayerView {
             link.addEventListener('click', async (event) => {
                 event.preventDefault(); // Evitamos que descargue el archivo por defecto
                 
-                this.controller.audioSource = 'external'; // Cambiamos el origen del audio
+                //this.controller.audioSource = 'external'; // Cambiamos el origen del audio
                 await this.controller.onHyperlinkFileSelected(track.url, track.name); // Reproducir
             });
 

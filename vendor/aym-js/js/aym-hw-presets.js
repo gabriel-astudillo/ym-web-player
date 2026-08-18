@@ -184,7 +184,7 @@ export class AYM_HardwarePresetManager {
             songData: preset.songData
         };
 
-        this.player.audioSource = 'external';
+        //this.player.audioSource = 'external';
 
         // 2. Poblar el visor de frames en la UI
         this.view.populateFramesContainer(preset.songData, preset.nFrames);
