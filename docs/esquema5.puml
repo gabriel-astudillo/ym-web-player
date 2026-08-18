@@ -1,0 +1,248 @@
+@startuml
+!theme plain
+autonumber
+skinparam BoxPadding 10
+skinparam ParticipantPadding 8
+
+actor "Usuario / UI" as User
+participant "AYM_PlayerView\n(View)" as View
+participant "AYM_Player\n(Controller)" as Controller
+participant "AYM_HardwarePresetManager\n(HW Manager)" as HwManager
+participant "AYM_SerialAdapter\n(Web Serial)" as Serial
+participant "ChiptuneFile\n(LHA/YM Decoder)" as Decoder
+participant "AYM_PlayerModel\n(Audio Model)" as Model
+participant "AYM_PlayerProcessor\n(AudioWorklet)" as Processor
+participant "AYM_Emulator\n(AY/YM Core)" as Emulator
+collections "Arduino / AY-3-8910\n(Hardware)" as Hardware
+
+== 1. Conexión Serial con el Hardware ==
+
+User -> View : Click #aymSerialConnect [Connect Serial]
+activate View
+View -> Controller : onClickSerialConnect()
+activate Controller
+
+alt Puerto Serial No Conectado
+    Controller -> View : setSerialStatus("Conectando...", false)
+    Controller -> Serial : connect()
+    activate Serial
+    Serial -> Serial : navigator.serial.requestPort()
+    Serial -> Serial : port.open({ baudRate: 115200 })
+    Serial -> Serial : port.writable.getWriter()
+    Serial --> Controller : isConnected = true
+    deactivate Serial
+    Controller -> View : setSerialStatus("Serial: Conectado (115200)", true)
+else Puerto Serial Conectado (Desconexión)
+    Controller -> HwManager : stop(true)
+    activate HwManager
+    HwManager -> Serial : sendFrame(muteAll_bytes)
+    HwManager --> Controller
+    deactivate HwManager
+    Controller -> Serial : disconnect()
+    activate Serial
+    Serial -> Serial : writer.close() & port.close()
+    Serial --> Controller : isConnected = false
+    deactivate Serial
+    Controller -> View : setSerialStatus("Serial: Desconectado", false)
+end
+deactivate Controller
+deactivate View
+
+== 2. Encendido del Emulador y Carga de Canción ==
+
+User -> View : Click #aymPower [Power On]
+activate View
+View -> Controller : onClickPower()
+activate Controller
+Controller -> Model : isNotPowered()
+activate Model
+Model --> Controller : true
+deactivate Model
+
+Controller -> Model : powerOn()
+activate Model
+Model -> Model : createContext(), createWorklet(), createAnalyser(), createGain()
+Model -> Processor : postMessage({ message_type: 'State' })
+Model --> Controller
+deactivate Model
+
+Controller -> View : powerOn()
+Controller -> Model : sendRequestTrackList()
+deactivate Controller
+deactivate View
+
+User -> View : Carga pista YM (#file-picker o .ym-link)
+activate View
+View -> Controller : onFileSelected(file) / onHyperlinkFileSelected()
+activate Controller
+Controller -> View : setStatusDisplay("Cargando y descomprimiendo...")
+
+Controller -> Decoder : new ChiptuneFile() & loadFile(file)
+activate Decoder
+Decoder -> Decoder : detectFormat()
+alt Archivo Comprimido LHA (-lh5-)
+    Decoder -> Decoder : decompressLh5File_GAM(arrayBuffer)
+else Archivo YM Crudo
+    Decoder -> Decoder : decodeYmFile(view, uint8Array)
+end
+Decoder -> Decoder : Deinterleaving & Reconstrucción matricial
+Decoder --> Controller : getData() -> [songData, nFrames, interleaved]
+deactivate Decoder
+
+Controller -> View : populateFramesContainer(songData, nFrames)
+activate View
+View -> View : Genera nodos HTML (#ym-frames-container)
+deactivate View
+
+Controller -> View : setTotalFrames(nFrames)
+Controller -> View : setStatusDisplay(`${songName}...OK`)
+deactivate Controller
+deactivate View
+
+== 3. Reproducción de Canción (Audio Web + Emisión Serial Dual) ==
+
+User -> View : Click #aymFilePlay [Play]
+activate View
+View -> Controller : onClickFilePlay()
+activate Controller
+Controller -> Model : sendExternalTrack(this.externalMusic)
+activate Model
+Model -> Processor : postMessage({ message_type: 'PlayExternal', message_data: externalMusic })
+deactivate Model
+deactivate Controller
+deactivate View
+
+activate Processor
+Processor -> Processor : Configura buffers, 50 Hz frame clock y frecuencia
+Processor -> Emulator : reset(), set_type_ym()/set_type_ay()
+activate Emulator
+deactivate Emulator
+
+Processor -> Model : postMessage({ message_type: 'PlayingFile' })
+activate Model
+Model -> Controller : recvPlayingFile()
+activate Controller
+Controller -> View : setPlayingFile()
+deactivate Controller
+deactivate Model
+
+loop Cada bloque de audio (AudioWorklet @ 50 Hz por Frame)
+    Processor -> Processor : clockChip()
+    
+    loop Por cada muestra de audio
+        Processor -> Emulator : clock()
+        activate Emulator
+        Emulator -> Emulator : fixup_tones() & DAC calculation
+        deactivate Emulator
+        
+        opt Tick de música alcanzado (clockMusic)
+            Processor -> Processor : Extrae frame actual (14 registros R0..R13)
+            loop Registros 0 a 13
+                Processor -> Emulator : set_register_index(i)
+                Processor -> Emulator : set_register_value(val)
+            end
+            
+            Processor -> Model : postMessage({ message_type: 'Frame', message_data: music_index })
+            activate Model
+            Model -> Controller : recvFrame(nFrame)
+            activate Controller
+            
+            Controller -> View : updateCurrentFrame(nFrame)
+            Controller -> View : highlightFrame(nFrame)
+            activate View
+            View -> View : Prepend nodo activo al inicio (#ym-frames-container)
+            deactivate View
+            
+            opt serialAdapter.isConnected == true
+                Controller -> Controller : currentFrameData = songData.slice(nFrame*14, 14)
+                Controller -> Serial : sendFrame(currentFrameData)
+                activate Serial
+                Serial -> Serial : Empaqueta [0xFF, 0x5A, 14 bytes, XOR Checksum]
+                Serial -> Hardware : writer.write(packet de 17 bytes)
+                activate Hardware
+                Hardware -> Hardware : Verifica Checksum y aplica R0..R13 a los pines
+                deactivate Hardware
+                deactivate Serial
+            end
+            
+            deactivate Controller
+            deactivate Model
+        end
+    end
+    
+    Processor -> Processor : mixStereo() & asignación a analizadores FFT / Waveform
+end
+
+== 4. Ejecución de Presets (Botones HW Preset A..H) ==
+
+User -> View : Click en Preset (#aymHwPreset0..7)
+activate View
+View -> Controller : onClickHwPresetA..H()
+activate Controller
+
+alt Modo Hw + Emulador (playHwAndEmu)
+    Controller -> HwManager : playHwAndEmu(presetKey)
+    activate HwManager
+    HwManager -> View : populateFramesContainer(preset.songData, preset.nFrames)
+    HwManager -> View : setTotalFrames(preset.nFrames)
+    HwManager -> Model : sendExternalTrack(player.externalMusic)
+    activate Model
+    Model -> Processor : postMessage({ message_type: 'PlayExternal', message_data: preset })
+    deactivate Model
+    deactivate HwManager
+else Modo Hardware Exclusivo Autónomo (sendPresetToHardwareOnly / play)
+    Controller -> HwManager : play(presetKey, loop)
+    activate HwManager
+    HwManager -> HwManager : Inicia setInterval(..., 20ms) @ 50 Hz
+    loop Cada 20 ms
+        HwManager -> Serial : sendFrame(frameBytes)
+        activate Serial
+        Serial -> Hardware : writer.write(packet 17 bytes)
+        deactivate Serial
+        HwManager -> View : updateCurrentFrame(frame), highlightFrame(frame)
+    end
+    deactivate HwManager
+end
+deactivate Controller
+deactivate View
+
+== 5. Detención de Pista y Silenciamiento por Hardware ==
+
+User -> View : Click #aymFileStop [Stop]
+activate View
+View -> Controller : onClickFileStop()
+activate Controller
+Controller -> Model : sendStopFile()
+activate Model
+Model -> Processor : postMessage({ message_type: 'StopFile' })
+deactivate Model
+deactivate Controller
+
+Processor -> Processor : chip_flags |= AYM_FLAG_RESET, music_index = -1
+Processor -> Model : postMessage({ message_type: 'StoppedFile' })
+activate Model
+Model -> Controller : recvStoppedFile()
+activate Controller
+Controller -> View : setStoppedFile()
+activate View
+View -> View : resetFrameDisplay()
+deactivate View
+
+opt serialAdapter.isConnected == true
+    Controller -> Controller : playHardwarePreset('muteAll')
+    Controller -> HwManager : play('muteAll')
+    activate HwManager
+    HwManager -> Serial : sendFrame(muteAll_bytes)
+    activate Serial
+    Serial -> Hardware : writer.write([0xFF, 0x5A, ..., 0x3F, ..., Checksum])
+    activate Hardware
+    Hardware -> Hardware : Silencia canales (R7=0x3F, R8..R10=0x00)
+    deactivate Hardware
+    deactivate Serial
+    deactivate HwManager
+end
+deactivate Controller
+deactivate Model
+deactivate View
+
+@enduml
