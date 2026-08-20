@@ -176,7 +176,7 @@ export class AYM_Player {
         this.model.sendOnlyC();
     }
 
-    async onClickPower() {
+    /*async onClickPower() {
         if(this.model.isNotPowered()) {
             await this.model.powerOn();
             await this.view.powerOn();
@@ -187,7 +187,7 @@ export class AYM_Player {
             await this.view.powerOff();
             await this.model.powerOff();
         }
-    }
+    }*/
 
     async onClickReset() {
         this.model.sendReset();
@@ -481,7 +481,7 @@ export class AYM_Player {
     }
 
     async onClickHwPresetF() {
-        await this.playHwAndEmu('presetF');
+        await this.playHwAndEmu('iFeelLove');
     }
 
     async onClickHwPresetG() {

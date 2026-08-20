@@ -16,7 +16,7 @@
  */
 
 import { AYM_Emulator } from './aym-emulator.js';
-import { AYM_Playlist } from './aym-playlist.js';
+//import { AYM_Playlist } from './aym-playlist.js';
 
 // ---------------------------------------------------------------------------
 // Some useful constants
@@ -35,7 +35,7 @@ const AYM_FLAG_MUTEC = 0x40;
 export class AYM_PlayerProcessor extends AudioWorkletProcessor {
     constructor(options) {
         super();
-        this.playlist    = new AYM_Playlist();
+        //this.playlist    = new AYM_Playlist();
         this.chip        = new AYM_Emulator({});
         this.chip_flags  = 0;
         this.chip_ticks  = 0;
@@ -111,10 +111,10 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
             case 'SelectTrack':
                 this.recvSelectTrack(payload.message_data);
                 break;
-             // Add GAM
-            case 'RequestTrackList':
-                this.sendTrackList();
-                break;
+            // Add GAM
+            //case 'RequestTrackList':
+            //    this.sendTrackList();
+            //    break;
             // Add GAM
             case 'PlayExternal':
                 this.recvPlayExternal(payload.message_data);
@@ -323,7 +323,7 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
 
     recvPlay(trackIndex = null) {
         this.chip_flags |= AYM_FLAG_RESET;
-        this.music = this.playlist.getMusic();
+        //this.music = this.playlist.getMusic();
         console.log(this.music);
 
         this.music_index = 0;
@@ -366,7 +366,7 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         this.sendStoppedFile();
     }
 
-    recvPrev() {
+    /*recvPrev() {
         const music = this.playlist.prevMusic();
         if(music != null) {
             this.music = music;
@@ -384,9 +384,9 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         else {
             this.sendUnchanged();
         }
-    }
+    }*/
 
-    recvNext() {
+    /*recvNext() {
         const music = this.playlist.nextMusic();
         if(music != null) {
             this.music = music;
@@ -404,7 +404,7 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         else {
             this.sendUnchanged();
         }
-    }
+    }*/
 
     recvSeek(seek) {
         const music_index = this.music_index;
@@ -459,7 +459,7 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
         
     }
 
-    sendTitle() {
+    /*sendTitle() {
         //this.sendMessage('Title', this.music.title);
         // Add GAM
         this.port.postMessage({
@@ -469,7 +469,7 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
                 track_index: this.playlist.cur_track // <-- Enviamos el índice actual de la playlist
             }
         });
-    }
+    }*/
 
     sendPlaying() {
         this.sendMessage('Playing');
@@ -578,13 +578,13 @@ export class AYM_PlayerProcessor extends AudioWorkletProcessor {
 
     /////////////////////////////////////////////////////////////////////////////
     // Add GAM
-    sendTrackList() {
+    /*sendTrackList() {
         const list = this.playlist.getTrackNames();
         this.port.postMessage({
             message_type: 'TrackList',
             message_data: list
         });
-    }
+    }*/
 
     hasReset() {
         if((this.chip_flags & AYM_FLAG_RESET) != 0) {
