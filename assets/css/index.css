@@ -401,7 +401,7 @@ button.is-toggled {
     margin: 0px;
     padding: 0px;
     background-color: rgb(244, 244, 244);
-    height: 160px; /* Define la altura máxima visible */
+    height: 220px; /* Define la altura máxima visible */
     overflow-y: auto; /* Muestra el scroll vertical cuando sea necesario */
     overflow-x: hidden; /* Oculta el scroll horizontal */
     padding: 8px 2px;

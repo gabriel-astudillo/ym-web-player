@@ -13,6 +13,6 @@
     else
       printf ',\n  "%s"' "$clean_file"
     fi
-  done < <(find . -type f -name "*.ym" | sort -f)
+  done < <(find . -type f -name "*.ym*" | sort -f)
   echo -e "\n]"
 ) > tracks.json
